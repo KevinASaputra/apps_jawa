@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import '../routes/app_routes.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -195,7 +196,9 @@ class _LoginPageState extends State<LoginPage> {
                   color: Colors.cyan.shade700,
                   fontWeight: FontWeight.bold,
                 ),
-                recognizer: TapGestureRecognizer()..onTap = () {},
+                recognizer: TapGestureRecognizer()..onTap = () {
+                  Navigator.pushNamed(context, AppRoutes.registerChoice);
+                },
               )
             ],
           ),
