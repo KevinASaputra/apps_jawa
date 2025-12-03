@@ -1,8 +1,8 @@
-import '../pages/login.dart';
+import '../features/login.dart';
 import '../routes/app_routes.dart';
-import '../pages/warga/register/register_choice_page.dart';
-import '../pages/warga/register/register_warga.dart';
-import '../pages/warga/register/register_keluarga.dart';
+import '../features/register/pages/warga/register_choice_page.dart';
+import '../features/register/pages/warga/register_warga.dart';
+import '../features/register/pages/warga/register_keluarga.dart';
 
 class AppPages {
   static final routes = {

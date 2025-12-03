@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart' as img;
-import '../../../widgets/text_field.dart';
-import '../../../widgets/dropdown_field.dart';
-import '../../../widgets/date_picker_field.dart';
-import 'variable/register_warga.dart';
+import '../../../../models/text_field.dart';
+import '../../../../models/dropdown_field.dart';
+import '../../../../models/date_picker_field.dart';
+import '../../controller/controller_warga.dart';
 
 class RegisterWargaPage extends StatefulWidget {
   const RegisterWargaPage({super.key});
@@ -72,11 +72,9 @@ class _RegisterWargaPageState extends State<RegisterWargaPage> {
 
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.cyan[700],
+        backgroundColor: Colors.cyan[700],
         title: const Text(
           "Register Warga",
-          style: TextStyle(fontWeight: FontWeight.w600),
         ),
       ),
 
