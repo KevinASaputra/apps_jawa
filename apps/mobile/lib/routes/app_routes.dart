@@ -4,5 +4,6 @@ class AppRoutes {
   static const registerChoice = '/registerChoice';
   static const registerWarga = '/registerWarga';
   static const registerKeluarga = '/registerKeluarga';
+  static const dashboardAdmin = '/dashboardAdmin';
 
 }
