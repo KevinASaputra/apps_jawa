@@ -165,7 +165,9 @@ class _LoginPageState extends State<LoginPage> {
             borderRadius: BorderRadius.circular(28),
           ),
         ),
-        onPressed: () {},
+        onPressed: () {
+          Navigator.pushNamed(context, AppRoutes.dashboardAdmin);
+        },
         child: const Text(
           "Masuk",
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
