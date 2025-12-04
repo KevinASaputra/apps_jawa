@@ -18,8 +18,14 @@ jobs:
         working-directory: ./apps/backend
         run: bun install
 
-      - name: Install dnsutils (for dig command)
+      - name: Install dnsutils (dig)
         run: sudo apt-get update && sudo apt-get install -y dnsutils
+
+      - name: Debug DATABASE_URL
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          echo "DEBUG: ${DATABASE_URL:0:40}"
 
       - name: Force Supabase DNS to IPv4
         run: |
@@ -30,7 +36,7 @@ jobs:
       - name: Run Drizzle Migration
         working-directory: ./apps/backend
         env:
-          DATABASE_URL: ${{secrets.DATABASE_URL}}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           echo "Running drizzle-kit push..."
           bun run db:push
