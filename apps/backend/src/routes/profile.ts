@@ -9,6 +9,7 @@ interface UserPayload {
   nik: string;
   email: string;
   name: string;
+  role: "pembeli" | "penjual";
   exp: number;
   iat: number;
 }
