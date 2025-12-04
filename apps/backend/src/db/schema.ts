@@ -15,5 +15,15 @@ export const citizens = pgTable("citizens", {
 
   passwordHash: varchar("password_hash", { length: 255 }).notNull(),
 
+  role: varchar("role", { length: 20 }).notNull().default("pembeli"),
+
   createdAt: timestamp("created_at").defaultNow(),
 });
+
+
+export const passwordReset = pgTable("password_reset", {
+  id: serial("id").primaryKey(),
+  email: varchar("email", { length: 150 }).notNull(),
+  otp: varchar("otp", { length: 255 }).notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+})
