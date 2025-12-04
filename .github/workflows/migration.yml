@@ -30,7 +30,7 @@ jobs:
       - name: Run Drizzle Migration
         working-directory: ./apps/backend
         env:
-          DATABASE_URL: ${{secrets.DATABASEURL}}
+          DATABASE_URL: ${{secrets.DATABASE_URL}}
         run: |
           echo "Running drizzle-kit push..."
           bun run db:push
