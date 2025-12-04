@@ -30,7 +30,7 @@ jobs:
       - name: Run Drizzle Migration
         working-directory: ./apps/backend
         env:
-          DATABASE_URL: ${{ secrets.APPS_JAWA_DATABASE_SECRET }}
+          DATABASE_URL: ${{secrets.DATABASEURL}}
         run: |
           echo "Running drizzle-kit push..."
           bun run db:push
