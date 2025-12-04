@@ -1,7 +1,7 @@
 name: Run Drizzle Migration
 
 on:
-  workflow_dispatch: # dijalankan manual
+  workflow_dispatch:
 
 jobs:
   migrate:
@@ -15,8 +15,13 @@ jobs:
       - name: Install Bun
         uses: oven-sh/setup-bun@v1
 
-      - name: Install dependencies
+      - name: Install backend dependencies
+        working-directory: ./apps/backend
         run: bun install
+
+      - name: List drizzle migrations
+        working-directory: ./apps/backend/drizzle
+        run: ls -la
 
       - name: Run Drizzle Migration
         working-directory: ./apps/backend
