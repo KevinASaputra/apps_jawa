@@ -29,7 +29,7 @@ class DropdownField extends StatelessWidget {
         border: Border.all(color: Colors.grey[300]!),
       ),
       child: DropdownButtonFormField<String>(
-        value: value,
+        initialValue: value,
 
         decoration: InputDecoration(
           border: InputBorder.none,
