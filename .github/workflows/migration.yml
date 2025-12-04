@@ -18,9 +18,12 @@ jobs:
         working-directory: ./apps/backend
         run: bun install
 
+      - name: Install dnsutils (for dig command)
+        run: sudo apt-get update && sudo apt-get install -y dnsutils
+
       - name: Force Supabase DNS to IPv4
         run: |
-          IP=$(dig +short db.kivdcyishetlbakszjrz.supabase.co | grep -E '^[0-9\.]+$' | head -n1)
+          IP=$(dig +short db.kivdcyishetlbakszjrz.supabase.co A | head -n1)
           echo "Using IPv4: $IP"
           echo "$IP db.kivdcyishetlbakszjrz.supabase.co" | sudo tee -a /etc/hosts
 
