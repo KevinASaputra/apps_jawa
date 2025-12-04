@@ -5,10 +5,7 @@ on:
 
 jobs:
   migrate:
-    name: Apply DB Migration
     runs-on: ubuntu-latest
-    env:
-      NODE_OPTIONS: "--dns-result-order=ipv4first"
 
     steps:
       - name: Checkout repository
@@ -21,9 +18,11 @@ jobs:
         working-directory: ./apps/backend
         run: bun install
 
-      - name: List drizzle migrations
-        working-directory: ./apps/backend/drizzle
-        run: ls -la
+      - name: Force Supabase DNS to IPv4
+        run: |
+          IP=$(dig +short db.kivdcyishetlbakszjrz.supabase.co | grep -E '^[0-9\.]+$' | head -n1)
+          echo "Using IPv4: $IP"
+          echo "$IP db.kivdcyishetlbakszjrz.supabase.co" | sudo tee -a /etc/hosts
 
       - name: Run Drizzle Migration
         working-directory: ./apps/backend
