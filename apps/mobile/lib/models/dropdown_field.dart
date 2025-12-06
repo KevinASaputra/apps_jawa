@@ -30,6 +30,7 @@ class DropdownField extends StatelessWidget {
       ),
       child: DropdownButtonFormField<String>(
         initialValue: value,
+        isExpanded: true,
 
         decoration: InputDecoration(
           border: InputBorder.none,
@@ -51,7 +52,12 @@ class DropdownField extends StatelessWidget {
         items: items
             .map((e) => DropdownMenuItem<String>(
                   value: e,
-                  child: Text(e, style: const TextStyle(fontSize: 14)),
+                  child: Text(
+                    e,
+                    style: const TextStyle(fontSize: 14),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ))
             .toList(),
 
