@@ -9,7 +9,7 @@ export const authMiddleware = async (c: Context, next: Next) => {
     return c.json({ message: "Unauthorized: Token is missing" }, 401);
   }
 
-  const token = authHeader.replace("Bearer", " ");
+  const token = authHeader.replace("Bearer", " ").trim();
 
   if (isBlacklisted(token)) {
     return c.json({ err: "Token has bee revoked" }, 401)
@@ -20,7 +20,11 @@ export const authMiddleware = async (c: Context, next: Next) => {
 
     c.set("user", decode);
     await next();
-  } catch (err) {
-    return c.json({ err: "Token expired" }, 401)
+  } catch (err: any) {
+    if (err.name === "TokenExpiredError") {
+      return c.json({ err: "Token expired" }, 401);
+    }
+
+    return c.json({ err: "Invalid token" }, 401);
   }
 }
