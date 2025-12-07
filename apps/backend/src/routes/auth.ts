@@ -19,6 +19,7 @@ authRoute.post("/register", async (c) => {
     address,
     email,
     password,
+    role = "Buyer"
   } = body;
 
   if (!nik || !name || !email || !password) {
@@ -33,13 +34,15 @@ authRoute.post("/register", async (c) => {
       nik,
       name,
       gender,
-      birthPlace,
-      birthDate,
+      birth_place: birthPlace,
+      birth_date: birthDate,
       address,
       email,
-      passwordHash
+      password_hash: passwordHash,
+      role
     })
     .returning();
+
 
   return c.json({ message: "Register berhasil", user: inserted[0] });
 });
@@ -61,7 +64,7 @@ authRoute.post("/login", async (c) => {
   }
 
   const user = result[0];
-  const isMatch = await bcrypt.compare(password, user.passwordHash);
+  const isMatch = await bcrypt.compare(password, user.password_hash);
 
   if (!isMatch) {
     return c.json({ error: "Password salah" }, 401);
@@ -76,7 +79,7 @@ authRoute.post("/login", async (c) => {
       role: user.role
     },
     process.env.JWT_SECRET!,
-    { expiresIn: "1d" }
+    { expiresIn: 60 * 60 * 24 }
   );
 
   return c.json({
