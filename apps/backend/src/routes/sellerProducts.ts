@@ -23,9 +23,9 @@ export const sellerProductsRoute = new Hono<{
 
 
 sellerProductsRoute.use("*", authMiddleware);
-sellerProductsRoute.use("*", allowRole(["seller"]));
+sellerProductsRoute.use("*", allowRole(["Seller"]));
 
-sellerProductsRoute.get("/", async (c) => {
+sellerProductsRoute.post("/", async (c) => {
   const user = c.get("user");
   const { name, description, price, stock, imageUrl } = await c.req.json();
 
