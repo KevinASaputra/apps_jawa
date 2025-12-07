@@ -63,38 +63,48 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
         borderRadius: BorderRadius.circular(32),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              navItem(Icons.home, "Beranda", 0),
-              navItem(Icons.people, "Kependudukan", 1),
-              navItem(Icons.account_balance, "Keuangan", 2),
-              navItem(Icons.store, "Marketplace", 3),
-              navItem(Icons.more_horiz, "Lainnya", 4),
-            ],
-          ),
+          child: Row(children: const [
+            Expanded(child: _NavItem(icon: Icons.home, label: "Beranda", index: 0)),
+            Expanded(child: _NavItem(icon: Icons.people, label: "Kependudukan", index: 1)),
+            Expanded(child: _NavItem(icon: Icons.account_balance, label: "Keuangan", index: 2)),
+            Expanded(child: _NavItem(icon: Icons.store, label: "Marketplace", index: 3)),
+            Expanded(child: _NavItem(icon: Icons.more_horiz, label: "Lainnya", index: 4)),
+          ]),
         ),
       ),
     );
   }
 
-  Widget navItem(IconData icon, String label, int index) {
-    bool active = widget.currentIndex == index;
+  void onNavTap(int index) => onTabTapped(index);
+}
+
+class _NavItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final int index;
+
+  const _NavItem({
+    required this.icon,
+    required this.label,
+    required this.index,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final state = context.findAncestorStateOfType<_AppBottomNavBarState>();
+    final active = state?.widget.currentIndex == index;
 
     return GestureDetector(
-      onTap: () => onTabTapped(index),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 10),
-        decoration: const BoxDecoration(
-          color: Colors.transparent, // tidak ada background active sama sekali
-        ),
+      behavior: HitTestBehavior.opaque,
+      onTap: () => state?.onNavTap(index),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             AnimatedScale(
               duration: const Duration(milliseconds: 150),
-              scale: active ? 1.22 : 1.0,
+              scale: active ? 1.18 : 1.0,
               child: Icon(
                 icon,
                 color: active ? Colors.cyan : Colors.grey[600],
@@ -112,11 +122,15 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
             const SizedBox(height: 3),
             Text(
               label,
+              textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 10.5,
+                fontSize: 10,
                 color: active ? Colors.cyan : Colors.grey[600],
                 fontWeight: active ? FontWeight.w600 : FontWeight.w400,
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              softWrap: false,
             ),
           ],
         ),
