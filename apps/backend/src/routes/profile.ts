@@ -49,8 +49,8 @@ profileRoute.put("/", async (c) => {
     .set({
       name,
       gender,
-      birthPlace,
-      birthDate,
+      birth_place: birthPlace,
+      birth_date: birthDate,
       address,
       email
     })
