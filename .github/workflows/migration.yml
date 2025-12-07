@@ -1,11 +1,10 @@
 name: Run Drizzle Migration
 
 on:
-  workflow_dispatch: # dijalankan manual
+  workflow_dispatch:
 
 jobs:
   migrate:
-    name: Apply DB Migration
     runs-on: ubuntu-latest
 
     steps:
@@ -15,13 +14,29 @@ jobs:
       - name: Install Bun
         uses: oven-sh/setup-bun@v1
 
-      - name: Install dependencies
+      - name: Install backend dependencies
+        working-directory: ./apps/backend
         run: bun install
+
+      - name: Install dnsutils (dig)
+        run: sudo apt-get update && sudo apt-get install -y dnsutils
+
+      - name: Debug DATABASE_URL
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          echo "DEBUG: ${DATABASE_URL:0:40}"
+
+      - name: Force Supabase DNS to IPv4
+        run: |
+          IP=$(dig +short db.kivdcyishetlbakszjrz.supabase.co A | head -n1)
+          echo "Using IPv4: $IP"
+          echo "$IP db.kivdcyishetlbakszjrz.supabase.co" | sudo tee -a /etc/hosts
 
       - name: Run Drizzle Migration
         working-directory: ./apps/backend
         env:
-          DATABASE_URL: ${{ secrets.APPS_JAWA_DATABASE_SECRET }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           echo "Running drizzle-kit push..."
           bun run db:push

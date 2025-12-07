@@ -61,6 +61,8 @@ class StatCard extends StatelessWidget {
               fontSize: 22,
               fontWeight: FontWeight.w800,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
 
           const SizedBox(height: 6),
@@ -73,6 +75,8 @@ class StatCard extends StatelessWidget {
               color: Colors.black54,
               fontWeight: FontWeight.w500,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
