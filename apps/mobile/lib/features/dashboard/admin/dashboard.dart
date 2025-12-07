@@ -7,6 +7,9 @@ import 'chart_keuangan.dart';
 import '../../../models/searchbar.dart';
 import '../../../models/stat_card.dart';
 import '../../../models/quickaction_button.dart';
+import '../../kependudukan/admin/kependudukan.dart';
+import '../../lainnya/kegiatan_warga.dart';
+import '../../keuangan/admin/keuangan.dart';
 
 class AdminDashboard extends StatelessWidget {
   const AdminDashboard({super.key});
@@ -122,16 +125,40 @@ class AdminDashboard extends StatelessWidget {
                     QuickActionButton(
                       icon: CupertinoIcons.person_badge_plus,
                       label: "Tambah Warga",
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const KependudukanPage(),
+                          ),
+                        );
+                      },
                     ),
                     const SizedBox(width: 12),
                     QuickActionButton(
                       icon: CupertinoIcons.calendar_badge_plus,
                       label: "Tambah Kegiatan",
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const KegiatanWargaPage(),
+                          ),
+                        );
+                      },
                     ),
                     const SizedBox(width: 12),
                     QuickActionButton(
                       icon: CupertinoIcons.doc_plaintext,
                       label: "Laporan",
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const KeuanganPage(),
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),

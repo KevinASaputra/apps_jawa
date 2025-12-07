@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'small_tag.dart';
+import 'detail_produk.dart';
 
 class ProductCard extends StatelessWidget {
   final String image;
@@ -8,6 +9,8 @@ class ProductCard extends StatelessWidget {
   final String umkm;
   final String stok;
   final String rt;
+  final String? kategori;
+  final String? description;
 
   const ProductCard({
     super.key,
@@ -17,6 +20,8 @@ class ProductCard extends StatelessWidget {
     required this.umkm,
     required this.stok,
     required this.rt,
+    this.kategori,
+    this.description,
   });
 
   @override
@@ -147,7 +152,18 @@ class ProductCard extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const Placeholder(),
+                          builder: (context) => DetailProdukPage(
+                            product: {
+                              'image': image,
+                              'title': title,
+                              'price': price,
+                              'umkm': umkm,
+                              'stok': stok,
+                              'rt': rt,
+                              'kategori': kategori ?? 'Pakaian Batik',
+                              'description': description,
+                            },
+                          ),
                         ),
                       );
                     },

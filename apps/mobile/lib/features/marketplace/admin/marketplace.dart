@@ -126,6 +126,8 @@ class _MarketplacePageState extends State<MarketplacePage> {
               umkm: "UMKM Lastri",
               stok: "8",
               rt: "RT 03",
+              kategori: "Pakaian Batik",
+              description: "Kemeja batik tulis premium dengan motif parang klasik. Cocok untuk acara formal maupun semi formal. Bahan katun halus, nyaman dipakai seharian.",
             ),
 
             ProductCard(
@@ -135,6 +137,8 @@ class _MarketplacePageState extends State<MarketplacePage> {
               umkm: "UMKM Maya",
               stok: "4",
               rt: "RT 01",
+              kategori: "Pakaian Batik",
+              description: "Dress batik elegan dengan motif kawung. Cocok untuk berbagai acara formal. Bahan premium dengan jahitan rapi dan detail yang menawan.",
             ),
 
             const SizedBox(height: 30),
