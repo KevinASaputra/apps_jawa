@@ -2,13 +2,14 @@ import { Client } from "pg";
 import { drizzle } from "drizzle-orm/node-postgres";
 import "dotenv/config";
 
-export const client = new Client({
+const client = new Client({
   connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  }
+  ssl: { rejectUnauthorized: false }
 });
 
-await client.connect();
+client.connect().catch((err) => {
+  console.error("Failed to connect to database:", err);
+});
 
 export const db = drizzle(client);
+export { client };
