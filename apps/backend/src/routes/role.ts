@@ -18,7 +18,7 @@ export const roleRoute = new Hono<{
   Variables: {
     user: UserPayload;
   };
-}>();;
+}>();
 
 roleRoute.use("*", authMiddleware);
 
@@ -26,7 +26,9 @@ roleRoute.put("/", async (c) => {
   const user = c.get("user");
   const { role } = await c.req.json();
 
-  if (role !== "pembeli" && role !== "penjual") {
+  const allowedRoles = ["Buyer", "Seller"];
+
+  if (!allowedRoles.includes(role)) {
     return c.json({ error: "Role tidak valid" }, 400);
   }
 
@@ -38,6 +40,6 @@ roleRoute.put("/", async (c) => {
 
   return c.json({
     message: "Role berhasil diperbarui",
-    data: updated[0]
+    data: updated[0],
   });
 });

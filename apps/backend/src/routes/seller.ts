@@ -5,7 +5,7 @@ import { allowRole } from "../middleware/middleware.role.js";
 export const sellerRoute = new Hono();
 
 sellerRoute.use("*", authMiddleware);
-sellerRoute.use("*", allowRole(["seller"]));
+sellerRoute.use("*", allowRole(["Seller"]));
 
 sellerRoute.get("/", (c) => {
   return c.json({ message: "Welcome Seller!" });
