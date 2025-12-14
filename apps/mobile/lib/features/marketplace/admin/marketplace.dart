@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../models/buttom_navbar.dart';
+import '../../../models/bottom_navbar_admin.dart';
 import '../../../models/searchbar.dart';
 import 'product_card.dart';
 import 'stat_card.dart';

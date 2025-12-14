@@ -166,7 +166,7 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
         onPressed: () {
-          Navigator.pushNamed(context, AppRoutes.dashboardAdmin);
+          Navigator.pushNamed(context, AppRoutes.dashboardWarga);
         },
         child: const Text(
           "Masuk",

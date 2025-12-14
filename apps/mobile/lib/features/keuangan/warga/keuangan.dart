@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../../models/bottom_navbar_admin.dart';
+import '../../../models/bottom_navbar_warga.dart';
+import '../widgets/total_summary_card.dart';
+import '../widgets/empty_transaction_state.dart';
 import 'package:intl/intl.dart';
 import 'detail_transaksi.dart';
-import 'tambah_transaksi.dart';
-import 'keuangan_widgets.dart';
 
 class KeuanganPage extends StatefulWidget {
   const KeuanganPage({super.key});
@@ -105,23 +105,6 @@ class _KeuanganPageState extends State<KeuanganPage>
             ),
           ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => TambahTransaksiPage(
-                jenis: _tabController.index == 0 ? 'Pemasukan' : 'Pengeluaran',
-              ),
-            ),
-          );
-          if (result == true) {
-            setState(() {});
-          }
-        },
-        backgroundColor: Colors.cyan,
-        child: const Icon(Icons.add, color: Colors.white, size: 30),
       ),
     );
   }
