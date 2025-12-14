@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../models/buttom_navbar.dart';
-import 'widgets/lainnya_widgets.dart';
-import 'profil_saya.dart';
-import 'kegiatan_warga.dart';
-import 'notifikasi.dart';
+import '../../../models/bottom_navbar_admin.dart';
+import '../widgets/lainnya_widgets.dart';
+import '../profil_saya.dart';
+import '../kegiatan_warga.dart';
+import '../notifikasi.dart';
 
 class LainnyaPage extends StatelessWidget {
   const LainnyaPage({super.key});

@@ -1,18 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../../../models/bottom_navbar_admin.dart';
+import '../../../models/bottom_navbar_warga.dart';
 import 'chart_demografi.dart';
 import 'kegiatan_terdekat.dart';
 import 'chart_keuangan.dart';
-import '../../../models/searchbar.dart';
 import '../../../models/stat_card.dart';
-import '../../../models/quickaction_button.dart';
-import '../../kependudukan/admin/kependudukan.dart';
-import '../../lainnya/kegiatan_warga.dart';
-import '../../keuangan/admin/keuangan.dart';
 
-class AdminDashboard extends StatelessWidget {
-  const AdminDashboard({super.key});
+class WargaDashboard extends StatelessWidget {
+  const WargaDashboard({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +57,7 @@ class AdminDashboard extends StatelessWidget {
                     const SizedBox(height: 4),
 
                     const Text(
-                      "Halo, Admin 👋",
+                      "Halo, Warga 👋",
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 22,
@@ -71,17 +66,6 @@ class AdminDashboard extends StatelessWidget {
                     ),
 
                     const SizedBox(height: 22),
-
-                    // ================= SEARCH BAR =================
-                    CustomSearchBar(
-                      hintText: "Cari data warga...",
-                      onChanged: (value) {
-                        // lakukan filter data di sini
-                        print("Search input: $value");
-                      },
-                    ),
-
-                    const SizedBox(height: 20),
 
                     // ================= STAT CARDS =================
                     SizedBox(
@@ -100,71 +84,6 @@ class AdminDashboard extends StatelessWidget {
               ),
 
               const SizedBox(height: 25),
-
-              // ====================================================
-              //                   AKSI CEPAT
-              // ====================================================
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Text(
-                  "Aksi Cepat",
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 17,
-                    color: Colors.grey[800],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 10),
-
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  children: [
-                    QuickActionButton(
-                      icon: CupertinoIcons.person_badge_plus,
-                      label: "Tambah Warga",
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const KependudukanPage(),
-                          ),
-                        );
-                      },
-                    ),
-                    const SizedBox(width: 12),
-                    QuickActionButton(
-                      icon: CupertinoIcons.calendar_badge_plus,
-                      label: "Tambah Kegiatan",
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const KegiatanWargaPage(),
-                          ),
-                        );
-                      },
-                    ),
-                    const SizedBox(width: 12),
-                    QuickActionButton(
-                      icon: CupertinoIcons.doc_plaintext,
-                      label: "Laporan",
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const KeuanganPage(),
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 30),
 
               // ====================================================
               //                     DEMOGRAFI

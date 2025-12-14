@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../models/buttom_navbar.dart';
+import '../../../models/bottom_navbar_admin.dart';
 import 'detail_keluarga.dart';
 import 'detail_warga.dart';
 import 'tambah_keluarga.dart';

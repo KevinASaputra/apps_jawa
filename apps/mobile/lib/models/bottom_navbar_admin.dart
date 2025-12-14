@@ -4,7 +4,7 @@ import '../../features/dashboard/admin/dashboard.dart';
 import '../features/kependudukan/admin/kependudukan.dart';
 import '../features/keuangan/admin/keuangan.dart';
 import '../features/marketplace/admin/marketplace.dart';
-import '../features/lainnya/lainnya.dart';
+import '../features/lainnya/admin/lainnya.dart';
 
 class AppBottomNavBar extends StatefulWidget {
   final int currentIndex;
