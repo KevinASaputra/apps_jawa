@@ -198,58 +198,9 @@ class _RegisterKeluargaPageState extends State<RegisterKeluargaPage> {
                     ],
                   ),
 
-                  DropdownField(
-                    label: "Nama Kepala Keluarga",
-                    icon: Icons.family_restroom,
-                    value: a.namaKepala,
-                    items: const ["Radit", "Aldi"],
-                    onChanged: (v) => setState(() => a.namaKepala = v),
-                  ),
 
-                  ModernTextField(controller: a.usernameC, label: "Username", prefixIcon: Icons.person),
                   ModernTextField(controller: a.namaC, label: "Nama Lengkap", prefixIcon: Icons.badge),
-                  ModernTextField(controller: a.nikC, label: "NIK", keyboardType: TextInputType.number, prefixIcon: Icons.badge),
-                  ModernTextField(controller: a.telpC, label: "Nomor Telepon", prefixIcon: Icons.phone),
-                  ModernTextField(controller: a.tempatLahirC, label: "Tempat Lahir", prefixIcon: Icons.location_city),
-                  DatePickerField(
-                    label: "Tanggal Lahir",
-                    icon: Icons.calendar_today,
-                    selected: a.tglLahir,
-                    onSelected: (d) => setState(() => a.tglLahir = d),
-                  ),
-
-                  DropdownField(
-                    label: "Jenis Kelamin",
-                    icon: Icons.male,
-                    value: a.jk,
-                    items: const ["Laki-laki", "Perempuan"],
-                    onChanged: (v) => setState(() => a.jk = v),
-                  ),
-
-                  DropdownField(
-                    label: "Agama",
-                    icon: Icons.book,
-                    value: a.agama,
-                    items: const ["Islam", "Kristen", "Katolik", "Hindu", "Buddha", "Konghucu", "Lainnya"],
-                    onChanged: (v) => setState(() => a.agama = v),
-                  ),
-
-                  DropdownField(
-                    label: "Golongan Darah",
-                    icon: Icons.bloodtype,
-                    value: a.goldar,
-                    items: const ["A", "B", "AB", "O"],
-                    onChanged: (v) => setState(() => a.goldar = v),
-                  ),
-
-                  DropdownField(
-                    label: "Peran Keluarga",
-                    icon: Icons.family_restroom,
-                    value: a.peran,
-                    items: const ["Kepala Keluarga", "Istri", "Anak"],
-                    onChanged: (v) => setState(() => a.peran = v),
-                  ),
-
+                  
                   ModernTextField(
                     controller: a.emailC,
                     label: "Email (@gmail.com)",
@@ -257,35 +208,11 @@ class _RegisterKeluargaPageState extends State<RegisterKeluargaPage> {
                     keyboardType: TextInputType.emailAddress,
                   ),
 
-                  
-                  // upload ktp
-                  GestureDetector(
-                    onTap: pickImage,
-                    child: Container(
-                      height: 160,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.cyan, width: 1.2),
-                        color: Colors.cyan.withOpacity(0.05),
-                      ),
-                      child: vars.foto == null
-                          ? Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.upload_file, size: 40, color: Colors.cyan[700]),
-                                const SizedBox(height: 10),
-                                Text(
-                                  "Upload Foto KTP/KIA",
-                                  style: TextStyle(color: Colors.cyan[700]),
-                                ),
-                              ],
-                            )
-                          : ClipRRect(
-                              borderRadius: BorderRadius.circular(16),
-                              child: Image.file(vars.foto!, fit: BoxFit.cover),
-                            ),
-                    ),
+                  ModernTextField(
+                    controller: a.passwordC,
+                    label: "Password",
+                    prefixIcon: Icons.lock,
+                    keyboardType: TextInputType.visiblePassword,
                   ),
                 ],
               ),
