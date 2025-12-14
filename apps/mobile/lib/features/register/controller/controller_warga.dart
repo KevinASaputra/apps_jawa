@@ -7,6 +7,7 @@ class RegisterWargaVariables {
   final tempatLahirC = TextEditingController();
   final emailC = TextEditingController();
   final usernameC = TextEditingController();
+  final passwordC = TextEditingController();
   dynamic foto;
 
   DateTime? tglLahir;

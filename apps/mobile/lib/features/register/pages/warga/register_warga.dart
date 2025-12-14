@@ -40,24 +40,6 @@ class _RegisterWargaPageState extends State<RegisterWargaPage> {
                 ),
               ),
               const SizedBox(height: 20),
-              ListTile(
-                leading: const Icon(Icons.camera_alt),
-                title: const Text("Ambil Foto dari Kamera"),
-                onTap: () async {
-                  final img.XFile? picked = await picker.pickImage(source: img.ImageSource.camera);
-                  if (picked != null) setState(() => ktpImage = File(picked.path));
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.photo_library),
-                title: const Text("Pilih dari Galeri"),
-                onTap: () async {
-                  final img.XFile? picked = await picker.pickImage(source: img.ImageSource.gallery);
-                  if (picked != null) setState(() => ktpImage = File(picked.path));
-                  Navigator.pop(context);
-                },
-              ),
             ],
           ),
         );
@@ -102,141 +84,18 @@ class _RegisterWargaPageState extends State<RegisterWargaPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
 
-                  // 🔹 Tambahan baru
-                  DropdownField(
-                    label: "Nama Kepala Keluarga",
-                    icon: Icons.family_restroom_sharp,
-                    value: vars.namaKepala?.isEmpty ?? true ? null : vars.namaKepala,
-                    items: const ["Radit", "Aldi"],
-                    onChanged: (v) => setState(() => vars.namaKepala = v),
-                  ),
-
-                  ModernTextField(controller: vars.usernameC, label: "Username",prefixIcon: Icons.person, ),
                   ModernTextField(controller: vars.namaC, label: "Nama Lengkap", prefixIcon: Icons.badge),
-                  ModernTextField(controller: vars.nikC, label: "NIK", keyboardType: TextInputType.number, prefixIcon: Icons.badge),
-                  ModernTextField(controller: vars.telpC, label: "Nomor Telepon (+62)", keyboardType: TextInputType.phone, prefixIcon: Icons.phone),
-                  ModernTextField(controller: vars.tempatLahirC, label: "Tempat Lahir", prefixIcon: Icons.location_city),
-                  DatePickerField(
-                    label: "Tanggal Lahir",
-                    icon: Icons.calendar_today,
-                    selected: vars.tglLahir,
-                    onSelected: (date) => setState(() => vars.tglLahir = date),
-                  ),
-
-                  DropdownField(
-                    label: "Jenis Kelamin",
-                    icon: Icons.male,
-                    value: vars.jk,
-                    items: const ["Laki-laki", "Perempuan"],
-                    onChanged: (v) => setState(() => vars.jk = v),
-                  ),
-
-                  DropdownField(
-                    label: "Agama",
-                    icon: Icons.book,
-                    value: vars.agama,
-                    items: const [
-                      "Islam", "Kristen", "Katolik", "Hindu",
-                      "Buddha", "Konghucu", "Lainnya"
-                    ],
-                    onChanged: (v) => setState(() => vars.agama = v),
-                  ),
-
-                  DropdownField(
-                    label: "Golongan Darah",
-                    icon: Icons.bloodtype,
-                    value: vars.goldar,
-                    items: const ["A", "B", "AB", "O"],
-                    onChanged: (v) => setState(() => vars.goldar = v),
-                  ),
-
-                  DropdownField(
-                    label: "Peran Keluarga",
-                    icon: Icons.family_restroom,
-                    value: vars.peran,
-                    items: const ["Kepala Keluarga", "Istri", "Anak"],
-                    onChanged: (v) => setState(() => vars.peran = v),
-                  ),
-
-                  DropdownField(
-                    label: "Pendidikan Terakhir",
-                    icon: Icons.school,
-                    value: vars.pendidikan,
-                    items: const [
-                      "SD", "SMP", "SMA/SMK",
-                      "Diploma", "Sarjana", "Magister", "Doktor"
-                    ],
-                    onChanged: (v) => setState(() => vars.pendidikan = v),
-                  ),
-
-                  DropdownField(
-                    label: "Pekerjaan",
-                    icon: Icons.work,
-                    value: vars.pekerjaan,
-                    items: const [
-                      "Pelajar", "Mahasiswa", "Wiraswasta", "Pegawai Swasta",
-                      "PNS", "IRT", "Tidak Bekerja", "Lainnya"
-                    ],
-                    onChanged: (v) => setState(() => vars.pekerjaan = v),
-                  ),
-
-                  DropdownField(
-                    label: "Status Kependudukan",
-                    icon: Icons.assignment_ind,
-                    value: vars.statusKependudukan,
-                    items: const [
-                      "Penduduk Tetap",
-                      "Pendatang / Tidak Tetap",
-                      "Domisili",
-                      "Pindah",
-                      "Meninggal"
-                    ],
-                    onChanged: (v) => setState(() => vars.statusKependudukan = v),
-                  ),
-
                   ModernTextField(
                     controller: vars.emailC,
                     label: "Email (harus @gmail)",
                     prefixIcon: Icons.email,
                     keyboardType: TextInputType.emailAddress,
                   ),
-
-                  const SizedBox(height: 20),
-
-                  // **************** FOTO KTP CARD MODERN ****************
-                  Text(
-                    "Upload Foto KTP/KIA",
-                    style: TextStyle(color: Colors.grey[700], fontSize: 14, fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(height: 10),
-
-                  GestureDetector(
-                    onTap: pickImage,
-                    child: Container(
-                      height: 160,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.cyan, width: 1.2),
-                        color: Colors.cyan.withOpacity(0.05),
-                      ),
-                      child: ktpImage == null
-                          ? Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.upload_file, size: 40, color: Colors.cyan[700]),
-                                const SizedBox(height: 10),
-                                Text(
-                                  "Upload Foto KTP/KIA",
-                                  style: TextStyle(color: Colors.cyan[700]),
-                                ),
-                              ],
-                            )
-                          : ClipRRect(
-                              borderRadius: BorderRadius.circular(16),
-                              child: Image.file(ktpImage!, fit: BoxFit.cover),
-                            ),
-                    ),
+                  ModernTextField(
+                    controller: vars.passwordC,
+                    label: "Password",
+                    prefixIcon: Icons.lock,
+                    keyboardType: TextInputType.visiblePassword,
                   ),
 
                 ],
