@@ -37,10 +37,7 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
         page = const LainnyaPage();
     }
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => page),
-    );
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => page));
   }
 
   @override
@@ -63,13 +60,41 @@ class _AppBottomNavBarState extends State<AppBottomNavBar> {
         borderRadius: BorderRadius.circular(32),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
-          child: Row(children: const [
-            Expanded(child: _NavItem(icon: Icons.home, label: "Beranda", index: 0)),
-            Expanded(child: _NavItem(icon: Icons.people, label: "Kependudukan", index: 1)),
-            Expanded(child: _NavItem(icon: Icons.account_balance, label: "Keuangan", index: 2)),
-            Expanded(child: _NavItem(icon: Icons.store, label: "Marketplace", index: 3)),
-            Expanded(child: _NavItem(icon: Icons.more_horiz, label: "Lainnya", index: 4)),
-          ]),
+          child: Row(
+            children: const [
+              Expanded(
+                child: _NavItem(icon: Icons.home, label: "Beranda", index: 0),
+              ),
+              Expanded(
+                child: _NavItem(
+                  icon: Icons.people,
+                  label: "Kependudukan",
+                  index: 1,
+                ),
+              ),
+              Expanded(
+                child: _NavItem(
+                  icon: Icons.account_balance,
+                  label: "Keuangan",
+                  index: 2,
+                ),
+              ),
+              Expanded(
+                child: _NavItem(
+                  icon: Icons.store,
+                  label: "Marketplace",
+                  index: 3,
+                ),
+              ),
+              Expanded(
+                child: _NavItem(
+                  icon: Icons.more_horiz,
+                  label: "Lainnya",
+                  index: 4,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -114,7 +139,7 @@ class _NavItem extends StatelessWidget {
                         Shadow(
                           color: Colors.cyan.withOpacity(0.4),
                           blurRadius: 6,
-                        )
+                        ),
                       ]
                     : [],
               ),
