@@ -12,6 +12,13 @@ dependencies:
     sdk: flutter
   intl: ^0.20.2
   image_picker: ^1.0.7
+  camera: ^0.10.5+5
+  path_provider: ^2.1.1
+  path: ^1.8.3
+  http: ^1.2.0
+  http_parser: ^4.0.2
+  image: ^4.0.17
+  get: ^4.6.5
   cupertino_icons: ^1.0.8
   dropdown_search: ^6.0.1
   fl_chart: ^1.1.1
