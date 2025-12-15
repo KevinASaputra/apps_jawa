@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'batik_detection_page.dart';
+import 'batik_camera_page.dart';
 import 'detail_produk_batik.dart';
 import 'widget/product_card_warga.dart';
 import 'widget/category_chip.dart';
@@ -15,7 +15,7 @@ class MarketplaceWarga extends StatefulWidget {
 class _MarketplaceWargaState extends State<MarketplaceWarga> {
   String selectedCategory = 'Semua';
   final TextEditingController _searchController = TextEditingController();
-  
+
   // Dummy data produk batik
   final List<Map<String, dynamic>> products = [
     {
@@ -68,7 +68,14 @@ class _MarketplaceWargaState extends State<MarketplaceWarga> {
     },
   ];
 
-  List<String> categories = ['Semua', 'Parang', 'Kawung', 'Mega Mendung', 'Truntum', 'Sido Mukti'];
+  List<String> categories = [
+    'Semua',
+    'Parang',
+    'Kawung',
+    'Mega Mendung',
+    'Truntum',
+    'Sido Mukti',
+  ];
 
   @override
   void dispose() {
@@ -155,7 +162,136 @@ class _MarketplaceWargaState extends State<MarketplaceWarga> {
                         color: Colors.transparent,
                         child: InkWell(
                           onTap: () {
-                            Get.to(() => const BatikDetectionPage());
+                            // Show option: Camera Realtime atau Upload
+                            showModalBottomSheet(
+                              context: context,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(20),
+                                ),
+                              ),
+                              builder: (context) => Container(
+                                padding: const EdgeInsets.all(20),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      width: 40,
+                                      height: 4,
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[300],
+                                        borderRadius: BorderRadius.circular(2),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 20),
+                                    const Text(
+                                      'Deteksi Motif Batik',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 20),
+                                    // Camera Real-time
+                                    ListTile(
+                                      leading: Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color: const Color(
+                                            0xFF6366F1,
+                                          ).withOpacity(0.1),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                        ),
+                                        child: const Icon(
+                                          Icons.camera_alt,
+                                          color: Color(0xFF6366F1),
+                                        ),
+                                      ),
+                                      title: const Text(
+                                        'Camera Real-time',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      subtitle: const Text(
+                                        'Deteksi otomatis setiap 3 detik',
+                                        style: TextStyle(fontSize: 12),
+                                      ),
+                                      trailing: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.green,
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        child: const Text(
+                                          'NEW',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      onTap: () {
+                                        Navigator.pop(context);
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                const BatikCameraPage(),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                    const Divider(),
+                                    // Upload/Gallery
+                                    ListTile(
+                                      leading: Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey[200],
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                        ),
+                                        child: Icon(
+                                          Icons.photo_library,
+                                          color: Colors.grey[700],
+                                        ),
+                                      ),
+                                      title: const Text(
+                                        'Upload Foto',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      subtitle: const Text(
+                                        'Pilih dari galeri atau ambil foto',
+                                        style: TextStyle(fontSize: 12),
+                                      ),
+                                      onTap: () {
+                                        Navigator.pop(context);
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                const BatikDetectionPage(),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                    const SizedBox(height: 10),
+                                  ],
+                                ),
+                              ),
+                            );
                           },
                           borderRadius: BorderRadius.circular(12),
                           child: Container(
@@ -206,7 +342,7 @@ class _MarketplaceWargaState extends State<MarketplaceWarga> {
               ],
             ),
           ),
-          
+
           // Category Filter
           Container(
             height: 50,
@@ -236,7 +372,11 @@ class _MarketplaceWargaState extends State<MarketplaceWarga> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.inventory_2_outlined, size: 80, color: Colors.grey[400]),
+                        Icon(
+                          Icons.inventory_2_outlined,
+                          size: 80,
+                          color: Colors.grey[400],
+                        ),
                         const SizedBox(height: 16),
                         Text(
                           'Tidak ada produk',
@@ -250,19 +390,26 @@ class _MarketplaceWargaState extends State<MarketplaceWarga> {
                   )
                 : GridView.builder(
                     padding: const EdgeInsets.all(16),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 0.7,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                    ),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 0.7,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                        ),
                     itemCount: filteredProducts.length,
                     itemBuilder: (context, index) {
                       final product = filteredProducts[index];
                       return ProductCardWarga(
                         product: product,
                         onTap: () {
-                          Get.to(() => DetailProdukBatik(product: product));
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  DetailProdukBatik(product: product),
+                            ),
+                          );
                         },
                       );
                     },
