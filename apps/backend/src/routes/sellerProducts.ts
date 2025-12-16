@@ -4,6 +4,7 @@ import { allowRole } from "../middleware/middleware.role.js";
 import { db } from "../db/client.js";
 import { product } from "../db/product.js";
 import { and, eq } from "drizzle-orm";
+import { requireVerifiedAccount } from "../middleware/middleware.accountVerif.js";
 
 interface UserPayload {
   id: number;
@@ -23,6 +24,7 @@ export const sellerProductsRoute = new Hono<{
 
 
 sellerProductsRoute.use("*", authMiddleware);
+sellerProductsRoute.use("*", requireVerifiedAccount);
 sellerProductsRoute.use("*", allowRole(["Seller"]));
 
 sellerProductsRoute.post("/", async (c) => {

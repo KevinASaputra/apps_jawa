@@ -1,18 +1,9 @@
 import { Hono } from "hono";
-import { eq } from "drizzle-orm";
-import { citizens } from "../db/schema.js";
-import { authMiddleware } from "../middleware/middleware.auth.js";
 import { db } from "../db/client.js";
-
-interface UserPayload {
-  id: number;
-  nik: string;
-  email: string;
-  name: string;
-  role: "pembeli" | "penjual";
-  exp: number;
-  iat: number;
-}
+import { citizens, profiles, familyMembers } from "../db/schema.js";
+import { eq } from "drizzle-orm";
+import { authMiddleware } from "../middleware/middleware.auth.js"
+import type { UserPayload } from "../types/auth.js";
 
 export const profileRoute = new Hono<{
   Variables: {
@@ -20,45 +11,48 @@ export const profileRoute = new Hono<{
   };
 }>();
 
+
 profileRoute.use("*", authMiddleware);
 
 profileRoute.get("/", async (c) => {
   const user = c.get("user");
 
-  const result = await db.select().from(citizens)
+  const account = await db
+    .select()
+    .from(citizens)
     .where(eq(citizens.id, user.id));
 
-  return c.json(result[0]);
+  const profile = await db
+    .select()
+    .from(profiles)
+    .where(eq(profiles.user_id, user.id));
+
+  return c.json({
+    account: {
+      name: account[0].name,
+      email: account[0].email,
+      role: account[0].role,
+    },
+    profile: profile[0] || null,
+  });
 });
 
 profileRoute.put("/", async (c) => {
   const user = c.get("user");
   const body = await c.req.json();
 
-  const {
-    name,
-    gender,
-    birthPlace,
-    birthDate,
-    address,
-    email
-  } = body;
-
   const updated = await db
     .update(citizens)
     .set({
-      name,
-      gender,
-      birth_place: birthPlace,
-      birth_date: birthDate,
-      address,
-      email
+      address: body.address,
+      phone: body.phone,
+      birth_date: body.birth_date,
     })
     .where(eq(citizens.id, user.id))
     .returning();
 
   return c.json({
-    message: "Data berhasil diperbarui",
-    data: updated[0]
+    message: "Profile updated",
+    data: updated[0],
   });
 });

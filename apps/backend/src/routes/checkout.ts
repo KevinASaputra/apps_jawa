@@ -3,14 +3,8 @@ import { authMiddleware } from "../middleware/middleware.auth.js";
 import { allowRole } from "../middleware/middleware.role.js";
 import { db } from "../db/client.js";
 import { cartItems, products, orders, orderItems } from "../db/schema.js";
-import { eq } from "drizzle-orm";
-
-interface UserPayload {
-  id: number;
-  email: string;
-  name: string;
-  role: string;
-}
+import { eq, sql } from "drizzle-orm";
+import type { UserPayload } from "../types/auth.js";
 
 export const checkoutRoute = new Hono<{
   Variables: { user: UserPayload }
@@ -54,6 +48,12 @@ checkoutRoute.post("/", async (c) => {
       quantity: row.cart_items.quantity,
       price: row.products!.price
     });
+    await db
+      .update(products)
+      .set({
+        sold_count: sql`${products.sold_count} + ${row.cart_items.quantity}`,
+      })
+      .where(eq(products.id, row.cart_items.productId));
   }
 
   await db.delete(cartItems).where(eq(cartItems.buyerId, user.id));
