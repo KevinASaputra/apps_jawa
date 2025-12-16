@@ -12,17 +12,36 @@ dependencies:
     sdk: flutter
   intl: ^0.20.2
   image_picker: ^1.0.7
+  camera: ^0.10.5+5
+  path_provider: ^2.1.1
+  path: ^1.8.3
+  http: ^1.2.0
+  http_parser: ^4.0.2
+  image: ^4.0.17
+  get: ^4.6.5
   cupertino_icons: ^1.0.8
   dropdown_search: ^6.0.1
   fl_chart: ^1.1.1
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.13.1
 
 flutter:
   uses-material-design: true
   assets:
     - assets/batik_kawung.jpg
     - assets/batik_parang.jpg
+    - assets/icon/app.png
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/app.png"
+  min_sdk_android: 21
+  remove_alpha_ios: true
+  background_color: "#ffffff"
