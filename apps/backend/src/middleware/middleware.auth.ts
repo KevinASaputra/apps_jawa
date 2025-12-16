@@ -1,30 +1,38 @@
 import type { Context, Next } from "hono";
 import jwt from "jsonwebtoken";
 import { isBlacklisted } from "../utils/tokenStore.js";
+import type { UserPayload } from "../types/auth.js";
 
-export const authMiddleware = async (c: Context, next: Next) => {
+export const authMiddleware = async (
+  c: Context<{ Variables: { user: UserPayload } }>,
+  next: Next
+) => {
   const authHeader = c.req.header("Authorization");
 
   if (!authHeader) {
-    return c.json({ message: "Unauthorized: Token is missing" }, 401);
+    return c.json({ error: "Unauthorized: Token is missing" }, 401);
   }
 
-  const token = authHeader.replace("Bearer", " ").trim();
+  const token = authHeader.replace("Bearer ", "").trim();
 
   if (isBlacklisted(token)) {
-    return c.json({ err: "Token has bee revoked" }, 401)
+    return c.json({ error: "Token has been revoked" }, 401);
   }
 
   try {
-    const decode = jwt.verify(token, process.env.JWT_SECRET!);
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET!
+    ) as UserPayload;
 
-    c.set("user", decode);
+    c.set("user", decoded);
+
     await next();
   } catch (err: any) {
     if (err.name === "TokenExpiredError") {
-      return c.json({ err: "Token expired" }, 401);
+      return c.json({ error: "Token expired" }, 401);
     }
 
-    return c.json({ err: "Invalid token" }, 401);
+    return c.json({ error: "Invalid token" }, 401);
   }
-}
+};
