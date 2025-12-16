@@ -5,6 +5,7 @@ import '../features/register/pages/warga/register_warga.dart';
 import '../features/register/pages/warga/register_keluarga.dart';
 import '../features/dashboard/admin/dashboard.dart';
 import '../features/dashboard/warga/dashboard.dart';
+import '../features/marketplace/warga/marketplace_warga.dart';
 
 class AppPages {
   static final routes = {
@@ -14,6 +15,6 @@ class AppPages {
     AppRoutes.registerKeluarga: (context) => const RegisterKeluargaPage(),
     AppRoutes.dashboardAdmin: (context) => const AdminDashboard(),
     AppRoutes.dashboardWarga: (context) => const WargaDashboard(),
-
+    AppRoutes.marketplaceWarga: (context) => const MarketplaceWarga(),
   };
 }

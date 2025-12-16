@@ -15,11 +15,11 @@ class MyApp extends StatelessWidget {
       title: 'Jawara Pintar',
       debugShowCheckedModeBanner: false,
       routes: AppPages.routes,
-      initialRoute: AppRoutes.login,
+      initialRoute: AppRoutes.login, // Start from login page
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF00AFC1)),
         useMaterial3: true,
-      )
+      ),
     );
   }
 }

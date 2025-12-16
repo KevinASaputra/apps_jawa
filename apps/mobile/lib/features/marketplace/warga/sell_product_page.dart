@@ -21,11 +21,19 @@ class _SellProductPageState extends State<SellProductPage> {
   final _descriptionController = TextEditingController();
 
   String? detectedMotif;
+  String? detectedRegion;
   File? _productImage;
   bool _isSubmitting = false;
   bool _isDetecting = false;
   double _detectionProgress = 0.0;
+  bool _isGeneratingAI = false;
+  double _aiProgress = 0.0;
   final ImagePicker _picker = ImagePicker();
+
+  static const String _openRouterApiKey =
+      'YOUR_OPENROUTER_API_KEY_HERE';
+  static const String _openRouterModel =
+      'meta-llama/llama-3.2-3b-instruct:free';
 
   @override
   void dispose() {
@@ -133,6 +141,182 @@ class _SellProductPageState extends State<SellProductPage> {
     );
   }
 
+  Future<void> _generateDescriptionWithAI() async {
+    if (detectedRegion == null || detectedMotif == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Deteksi motif batik terlebih dahulu'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isGeneratingAI = true;
+      _aiProgress = 0.0;
+    });
+
+    try {
+      final prompt =
+          '''Buatkan deskripsi produk batik untuk marketplace dalam bahasa Indonesia:
+
+Daerah: $detectedRegion
+Motif: $detectedMotif
+
+Format (tanpa nomor):
+- Penjelasan singkat motif (2-3 kalimat)
+- Filosofi atau makna (1-2 kalimat)
+- Keunikan dari daerah $detectedRegion (1 kalimat)
+- Cocok untuk acara apa (1 kalimat)
+
+Langsung berikan deskripsinya saja, maksimal 150 kata, persuasif untuk pembeli.''';
+
+      setState(() => _aiProgress = 0.3);
+
+      final response = await http.post(
+        Uri.parse('https://openrouter.ai/api/v1/chat/completions'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $_openRouterApiKey',
+          'HTTP-Referer': 'https://batik-marketplace.app',
+          'X-Title': 'Batik Marketplace',
+        },
+        body: json.encode({
+          'model': _openRouterModel,
+          'messages': [
+            {
+              'role': 'system',
+              'content':
+                  'Kamu adalah asisten yang membuat deskripsi produk batik. Langsung berikan deskripsi tanpa penjelasan atau pemikiran tambahan.',
+            },
+            {'role': 'user', 'content': prompt},
+          ],
+          'temperature': 0.7,
+          'max_tokens': 300,
+          'stop': ['Hmm,', 'Aku ', 'User meminta'],
+        }),
+      );
+
+      setState(() => _aiProgress = 0.7);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print('🔍 DEBUG - OpenRouter Full Response: $data');
+
+        // Extract description dengan error handling
+        String description = '';
+        try {
+          if (data['choices'] != null && data['choices'].isNotEmpty) {
+            final choice = data['choices'][0];
+            print('🔍 DEBUG - Choice data: $choice');
+            print('🔍 DEBUG - Finish reason: ${choice['finish_reason']}');
+
+            final content = choice['message']?['content'];
+            if (content != null) {
+              description = content.toString().trim();
+              print('✅ DEBUG - Raw content length: ${description.length}');
+              print('✅ DEBUG - Content: "$description"');
+            } else {
+              print(
+                '⚠️ DEBUG - Content is null, checking message: ${choice['message']}',
+              );
+            }
+          } else if (data['error'] != null) {
+            throw Exception('API Error: ${data['error']}');
+          } else {
+            throw Exception('Unexpected response format');
+          }
+        } catch (e) {
+          print('❌ DEBUG - Parse Error: $e');
+          print('❌ DEBUG - Data keys: ${data.keys}');
+          if (data['choices'] != null && data['choices'].isNotEmpty) {
+            print('❌ DEBUG - First choice: ${data['choices'][0]}');
+          }
+          throw Exception('Failed to parse AI response: $e');
+        }
+
+        // Jangan reject kalau text pendek - bisa jadi valid response
+        if (description.isEmpty) {
+          print('⚠️ DEBUG - Empty description, using fallback');
+          throw Exception('Empty description received from API');
+        }
+
+        print(
+          '✅ DEBUG - Setting description to field (${description.length} chars)',
+        );
+
+        // Set text dengan force update
+        _descriptionController.text = description;
+        _descriptionController.selection = TextSelection.fromPosition(
+          TextPosition(offset: _descriptionController.text.length),
+        );
+
+        print(
+          '✅ DEBUG - Controller text now: "${_descriptionController.text}"',
+        );
+
+        setState(() {
+          _aiProgress = 1.0;
+        });
+
+        await Future.delayed(const Duration(milliseconds: 300));
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                '✅ Deskripsi berhasil dibuat (${description.length} karakter)',
+              ),
+              backgroundColor: const Color(0xFF00AFC1),
+            ),
+          );
+        }
+      } else {
+        final errorBody = response.body;
+        print('❌ DEBUG - API Error ${response.statusCode}: $errorBody');
+        throw Exception('API Error: ${response.statusCode} - $errorBody');
+      }
+    } catch (e) {
+      // Fallback jika API gagal
+      print('⚠️ DEBUG - Error caught: $e');
+
+      final fallbackDescription =
+          'Batik $detectedMotif dari $detectedRegion merupakan karya seni tradisional Indonesia yang kaya akan makna. Motif ini menggambarkan keindahan budaya dan filosofi yang mendalam. Cocok untuk berbagai acara formal maupun kasual, batik ini akan membuat penampilan Anda lebih elegan dan berkesan.';
+
+      // Set text dengan force update
+      _descriptionController.text = fallbackDescription;
+      _descriptionController.selection = TextSelection.fromPosition(
+        TextPosition(offset: _descriptionController.text.length),
+      );
+
+      setState(() {
+        _aiProgress = 1.0;
+      });
+
+      print(
+        '📝 DEBUG - Fallback description set: ${_descriptionController.text}',
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '⚠️ Menggunakan deskripsi default\n${e.toString().substring(0, e.toString().length > 50 ? 50 : e.toString().length)}...',
+            ),
+            backgroundColor: Colors.orange,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    } finally {
+      print(
+        '🏁 DEBUG - AI Generation finished. isGenerating: $_isGeneratingAI',
+      );
+      setState(() => _isGeneratingAI = false);
+    }
+  }
+
   Future<void> _detectMotifInline() async {
     if (_productImage == null) return;
 
@@ -211,22 +395,25 @@ class _SellProductPageState extends State<SellProductPage> {
           if (resultData['event_id'] == eventId) {
             final output = resultData['output']['data'][0];
             final label = output['label'] as String;
-            final motifName = label.split('_').last;
+
+            // Parse region dan motif
+            final parts = label.split('_');
+            final region = parts[0]; // Contoh: "Yogyakarta"
+            final motif = parts.sublist(1).join(' '); // Contoh: "Parang Barong"
 
             // Step 5: Auto-fill form (100%)
             setState(() {
               _detectionProgress = 1.0;
-              detectedMotif = motifName;
-              _nameController.text = 'Kain Batik $motifName';
-              _descriptionController.text =
-                  'Batik dengan motif $motifName yang indah dan berkualitas tinggi. Cocok untuk berbagai acara formal maupun casual.';
+              detectedMotif = motif;
+              detectedRegion = region;
+              _nameController.text = 'Kain Batik $motif';
               _isDetecting = false;
             });
 
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('✅ Motif terdeteksi: $motifName'),
+                  content: Text('✅ Motif terdeteksi: $motif dari $region'),
                   backgroundColor: const Color(0xFF00AFC1),
                 ),
               );
@@ -611,31 +798,115 @@ class _SellProductPageState extends State<SellProductPage> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Description
-                    TextFormField(
-                      controller: _descriptionController,
-                      maxLines: 4,
-                      decoration: InputDecoration(
-                        labelText: 'Deskripsi',
-                        hintText: 'Jelaskan detail produk Anda...',
-                        alignLabelWithHint: true,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
+                    // Description with AI Button
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Expanded(
+                              child: Text(
+                                'Deskripsi',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                            OutlinedButton.icon(
+                              onPressed: _isGeneratingAI
+                                  ? null
+                                  : _generateDescriptionWithAI,
+                              icon: _isGeneratingAI
+                                  ? const SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                              Color(0xFF00AFC1),
+                                            ),
+                                      ),
+                                    )
+                                  : const Icon(Icons.auto_awesome, size: 18),
+                              label: Text(
+                                _isGeneratingAI
+                                    ? 'Generating...'
+                                    : 'Generate AI',
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: const Color(0xFF00AFC1),
+                                side: const BorderSide(
+                                  color: Color(0xFF00AFC1),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(
-                            color: Color(0xFF00AFC1),
-                            width: 2,
+                        if (_isGeneratingAI) ...[
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF00AFC1).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Column(
+                              children: [
+                                LinearProgressIndicator(
+                                  value: _aiProgress,
+                                  backgroundColor: Colors.grey[300],
+                                  valueColor:
+                                      const AlwaysStoppedAnimation<Color>(
+                                        Color(0xFF00AFC1),
+                                      ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '${(_aiProgress * 100).toInt()}% - Membuat deskripsi dengan AI...',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: Colors.grey[700],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
+                        ],
+                        const SizedBox(height: 8),
+                        TextFormField(
+                          key: ValueKey(_descriptionController.text),
+                          controller: _descriptionController,
+                          maxLines: 4,
+                          decoration: InputDecoration(
+                            hintText:
+                                'Jelaskan detail produk atau klik "Generate AI"',
+                            alignLabelWithHint: true,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: const BorderSide(
+                                color: Color(0xFF00AFC1),
+                                width: 2,
+                              ),
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Deskripsi harus diisi';
+                            }
+                            return null;
+                          },
                         ),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Deskripsi harus diisi';
-                        }
-                        return null;
-                      },
+                      ],
                     ),
                   ],
                 ),

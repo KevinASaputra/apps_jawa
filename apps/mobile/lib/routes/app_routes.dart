@@ -6,5 +6,5 @@ class AppRoutes {
   static const dashboardAdmin = '/dashboardAdmin';
 
   static const dashboardWarga = '/dashboardWarga';
-
+  static const marketplaceWarga = '/marketplaceWarga';
 }

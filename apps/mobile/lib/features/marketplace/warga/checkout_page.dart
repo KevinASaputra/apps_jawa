@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
 class CheckoutPage extends StatefulWidget {
   final List<Map<String, dynamic>> items;
@@ -10,40 +12,158 @@ class CheckoutPage extends StatefulWidget {
 }
 
 class _CheckoutPageState extends State<CheckoutPage> {
-  String selectedPayment = 'BCA Virtual Account';
-  String selectedShipping = 'JNE Regular';
+  // Address data - untuk pengiriman lokal sekampung
+  final String userName = 'John Doe';
+  final String userPhone = '+62 812-3456-7890';
+  final String userAddress =
+      'Jl. Batik Nusantara No. 123, Yogyakarta, DI Yogyakarta 55281';
+  final double latitude = -7.7956; // Dummy coordinate Yogyakarta
+  final double longitude = 110.3695;
 
-  final List<Map<String, String>> paymentMethods = [
-    {'name': 'BCA Virtual Account', 'icon': '🏦'},
-    {'name': 'Mandiri Virtual Account', 'icon': '🏦'},
-    {'name': 'OVO', 'icon': '💳'},
-    {'name': 'GoPay', 'icon': '💳'},
-    {'name': 'ShopeePay', 'icon': '💳'},
-  ];
-
-  final List<Map<String, dynamic>> shippingMethods = [
-    {'name': 'JNE Regular', 'price': 15000, 'estimate': '3-5 hari'},
-    {'name': 'JNE YES', 'price': 25000, 'estimate': '1-2 hari'},
-    {'name': 'J&T Express', 'price': 12000, 'estimate': '3-4 hari'},
-    {'name': 'SiCepat', 'price': 10000, 'estimate': '4-6 hari'},
-  ];
-
-  int get subtotal {
+  int get total {
     return widget.items.fold(
       0,
       (sum, item) => sum + (item['price'] as int) * (item['quantity'] as int),
     );
   }
 
-  int get shippingCost {
-    final method = shippingMethods.firstWhere(
-      (m) => m['name'] == selectedShipping,
-      orElse: () => shippingMethods[0],
-    );
-    return method['price'] as int;
-  }
+  void _openMap() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.75,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        child: Column(
+          children: [
+            // Header
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.location_on, color: Color(0xFF00AFC1)),
+                  const SizedBox(width: 8),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Alamat Pengiriman',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          'Yogyakarta',
+                          style: TextStyle(fontSize: 12, color: Colors.black54),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
+              ),
+            ),
 
-  int get total => subtotal + shippingCost;
+            // Map
+            Expanded(
+              child: FlutterMap(
+                options: MapOptions(
+                  initialCenter: LatLng(latitude, longitude),
+                  initialZoom: 15.0,
+                  minZoom: 10.0,
+                  maxZoom: 18.0,
+                ),
+                children: [
+                  TileLayer(
+                    urlTemplate:
+                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    userAgentPackageName: 'com.example.mobile',
+                  ),
+                  MarkerLayer(
+                    markers: [
+                      Marker(
+                        point: LatLng(latitude, longitude),
+                        width: 50,
+                        height: 50,
+                        child: const Icon(
+                          Icons.location_on,
+                          color: Color(0xFF00AFC1),
+                          size: 50,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            // Address info at bottom
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.2),
+                    blurRadius: 4,
+                    offset: const Offset(0, -2),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    userName,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    userPhone,
+                    style: const TextStyle(fontSize: 13, color: Colors.black87),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    userAddress,
+                    style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,18 +205,28 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             ),
                           ),
                           const Spacer(),
-                          TextButton(
-                            onPressed: () {
-                              // Change address
-                            },
-                            child: const Text('Ubah'),
+                          OutlinedButton.icon(
+                            onPressed: _openMap,
+                            icon: const Icon(Icons.map, size: 16),
+                            label: const Text(
+                              'Lihat Map',
+                              style: TextStyle(fontSize: 12),
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: cyan,
+                              side: const BorderSide(color: cyan),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                            ),
                           ),
                         ],
                       ),
                       const Divider(),
-                      const Text(
-                        'John Doe',
-                        style: TextStyle(
+                      Text(
+                        userName,
+                        style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
@@ -201,65 +331,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
                 const SizedBox(height: 8),
 
-                // Shipping Method
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  color: Colors.white,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Row(
-                        children: [
-                          Icon(Icons.local_shipping, color: cyan, size: 20),
-                          SizedBox(width: 8),
-                          Text(
-                            'Metode Pengiriman',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const Divider(),
-                      ...shippingMethods.map(
-                        (method) => RadioListTile<String>(
-                          value: method['name'] as String,
-                          groupValue: selectedShipping,
-                          onChanged: (value) {
-                            setState(() {
-                              selectedShipping = value!;
-                            });
-                          },
-                          activeColor: cyan,
-                          title: Text(
-                            method['name'] as String,
-                            style: const TextStyle(fontSize: 14),
-                          ),
-                          subtitle: Text(
-                            'Estimasi: ${method['estimate']}',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                          secondary: Text(
-                            'Rp ${(method['price'] as int).toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (match) => '${match[1]}.')}',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          contentPadding: EdgeInsets.zero,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 8),
-
-                // Payment Method
+                // Payment Method - COD Only
                 Container(
                   padding: const EdgeInsets.all(16),
                   color: Colors.white,
@@ -280,30 +352,85 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         ],
                       ),
                       const Divider(),
-                      ...paymentMethods.map(
-                        (method) => RadioListTile<String>(
-                          value: method['name']!,
-                          groupValue: selectedPayment,
-                          onChanged: (value) {
-                            setState(() {
-                              selectedPayment = value!;
-                            });
-                          },
-                          activeColor: cyan,
-                          title: Row(
-                            children: [
-                              Text(
-                                method['icon']!,
-                                style: const TextStyle(fontSize: 24),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 16,
+                        ),
+                        decoration: BoxDecoration(
+                          color: cyan.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: cyan, width: 1.5),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: cyan,
+                                borderRadius: BorderRadius.circular(6),
                               ),
-                              const SizedBox(width: 12),
-                              Text(
-                                method['name']!,
-                                style: const TextStyle(fontSize: 14),
+                              child: const Icon(
+                                Icons.money,
+                                color: Colors.white,
+                                size: 24,
                               ),
-                            ],
-                          ),
-                          contentPadding: EdgeInsets.zero,
+                            ),
+                            const SizedBox(width: 12),
+                            const Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Cash On Delivery (COD)',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                SizedBox(height: 2),
+                                Text(
+                                  'Bayar saat barang diterima',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const Spacer(),
+                            const Icon(
+                              Icons.check_circle,
+                              color: cyan,
+                              size: 24,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: const Row(
+                          children: [
+                            Icon(
+                              Icons.info_outline,
+                              color: Colors.orange,
+                              size: 18,
+                            ),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Pembayaran dilakukan langsung kepada kurir saat pengiriman dalam kampung',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -327,11 +454,48 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         ),
                       ),
                       const Divider(),
-                      _buildPriceRow('Subtotal', subtotal),
+                      _buildPriceRow('Subtotal Produk', total),
                       const SizedBox(height: 8),
-                      _buildPriceRow('Ongkir', shippingCost),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 8,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.green.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: const Row(
+                          children: [
+                            Icon(
+                              Icons.local_shipping,
+                              color: Colors.green,
+                              size: 18,
+                            ),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Gratis Ongkir - Pengiriman Lokal',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.green,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            Text(
+                              'Rp 0',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.green,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                       const Divider(),
-                      _buildPriceRow('Total', total, isTotal: true),
+                      _buildPriceRow('Total Pembayaran', total, isTotal: true),
                     ],
                   ),
                 ),

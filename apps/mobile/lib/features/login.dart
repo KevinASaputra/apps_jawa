@@ -40,12 +40,7 @@ class _LoginPageState extends State<LoginPage> {
           ),
 
           // footer - copyright
-          Positioned(
-            bottom: 20,
-            left: 0,
-            right: 0,
-            child: _buildFooter(),
-          )
+          Positioned(bottom: 20, left: 0, right: 0, child: _buildFooter()),
         ],
       ),
     );
@@ -56,10 +51,7 @@ class _LoginPageState extends State<LoginPage> {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            Color(0xFFE0FFFF), 
-            Colors.white,
-          ],
+          colors: [Color(0xFFE0FFFF), Colors.white],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
@@ -69,12 +61,21 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _buildLogo() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      width: 120,
+      height: 120,
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.cyan.shade600,
-        borderRadius: BorderRadius.circular(16),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF00AFC1).withOpacity(0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
-      child: const Icon(Icons.home, size: 42, color: Colors.white),
+      child: Image.asset('assets/icon/app.png', fit: BoxFit.contain),
     );
   }
 
@@ -82,12 +83,17 @@ class _LoginPageState extends State<LoginPage> {
     return Column(
       children: const [
         Text(
-          "Jawara Pintar",
-          style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+          "JAWARA",
+          style: TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF00AFC1),
+            letterSpacing: 2,
+          ),
         ),
         SizedBox(height: 4),
         Text(
-          "Sistem Manajemen RT/RW",
+          "Jawa Warga Pintar",
           style: TextStyle(fontSize: 14, color: Colors.black54),
         ),
       ],
@@ -100,10 +106,7 @@ class _LoginPageState extends State<LoginPage> {
       children: [
         const Text("Username"),
         const SizedBox(height: 6),
-        _buildTextField(
-          hint: "Masukkan username",
-          icon: Icons.person_outline,
-        ),
+        _buildTextField(hint: "Masukkan username", icon: Icons.person_outline),
         const SizedBox(height: 20),
 
         const Text("Password"),
@@ -116,22 +119,16 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _buildTextField({
-    required String hint,
-    required IconData icon,
-  }) {
+  Widget _buildTextField({required String hint, required IconData icon}) {
     return TextField(
       decoration: InputDecoration(
         prefixIcon: Icon(icon),
         hintText: hint,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(28),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(28)),
       ),
     );
   }
 
-  
   Widget _buildPasswordField() {
     return TextField(
       obscureText: _obscurePassword,
@@ -146,9 +143,7 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
         hintText: "Masukkan password",
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(28),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(28)),
       ),
     );
   }
@@ -170,7 +165,11 @@ class _LoginPageState extends State<LoginPage> {
         },
         child: const Text(
           "Masuk",
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
         ),
       ),
     );
@@ -181,10 +180,7 @@ class _LoginPageState extends State<LoginPage> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         // lupa password
-        TextButton(
-          onPressed: () {},
-          child: const Text("Lupa password?"),
-        ),
+        TextButton(onPressed: () {}, child: const Text("Lupa password?")),
 
         // buat akun (masih 1 line tapi kanan)
         RichText(
@@ -198,10 +194,11 @@ class _LoginPageState extends State<LoginPage> {
                   color: Colors.cyan.shade700,
                   fontWeight: FontWeight.bold,
                 ),
-                recognizer: TapGestureRecognizer()..onTap = () {
-                  Navigator.pushNamed(context, AppRoutes.registerChoice);
-                },
-              )
+                recognizer: TapGestureRecognizer()
+                  ..onTap = () {
+                    Navigator.pushNamed(context, AppRoutes.registerChoice);
+                  },
+              ),
             ],
           ),
         ),
