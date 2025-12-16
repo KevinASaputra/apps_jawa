@@ -5,9 +5,32 @@ import 'chart_demografi.dart';
 import 'kegiatan_terdekat.dart';
 import 'chart_keuangan.dart';
 import '../../../models/stat_card.dart';
+import '../../../services/auth_service.dart';
 
-class WargaDashboard extends StatelessWidget {
+class WargaDashboard extends StatefulWidget {
   const WargaDashboard({super.key});
+
+  @override
+  State<WargaDashboard> createState() => _WargaDashboardState();
+}
+
+class _WargaDashboardState extends State<WargaDashboard> {
+  String userName = "Warga";
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final userData = await AuthService().getUserData();
+    if (userData != null && mounted) {
+      setState(() {
+        userName = userData['name'] ?? 'Warga';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +45,6 @@ class WargaDashboard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
               // ====================================================
               //                       HEADER
               // ====================================================
@@ -32,10 +54,7 @@ class WargaDashboard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: cyan,
                   gradient: LinearGradient(
-                    colors: [
-                      cyan,
-                      cyan.withOpacity(0.88),
-                    ],
+                    colors: [cyan, cyan.withOpacity(0.88)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -48,7 +67,6 @@ class WargaDashboard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-
                     const Text(
                       "Selamat Datang",
                       style: TextStyle(color: Colors.white, fontSize: 14),
@@ -56,9 +74,9 @@ class WargaDashboard extends StatelessWidget {
 
                     const SizedBox(height: 4),
 
-                    const Text(
-                      "Halo, Warga 👋",
-                      style: TextStyle(
+                    Text(
+                      "Halo, $userName 👋",
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
@@ -143,4 +161,3 @@ class WargaDashboard extends StatelessWidget {
     );
   }
 }
-

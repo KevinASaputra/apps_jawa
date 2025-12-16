@@ -1,11 +1,69 @@
 import 'package:flutter/material.dart';
 import 'ubah_kata_sandi.dart';
+import '../../services/auth_service.dart';
+import 'upgrade_to_seller_page.dart';
 
-class ProfilSayaPage extends StatelessWidget {
+class ProfilSayaPage extends StatefulWidget {
   const ProfilSayaPage({super.key});
 
   @override
+  State<ProfilSayaPage> createState() => _ProfilSayaPageState();
+}
+
+class _ProfilSayaPageState extends State<ProfilSayaPage> {
+  Map<String, dynamic>? userData;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final data = await AuthService().getUserData();
+    if (mounted) {
+      setState(() {
+        userData = data;
+        _isLoading = false;
+      });
+    }
+  }
+
+  String _getRoleBadgeText() {
+    final role = userData?['role'] ?? 'Buyer';
+    if (role == 'Admin' || role == 'RT' || role == 'RW') return 'Admin';
+    if (role == 'Seller') return 'Seller';
+    return 'Buyer';
+  }
+
+  Color _getRoleBadgeColor() {
+    final role = userData?['role'] ?? 'Buyer';
+    if (role == 'Admin' || role == 'RT' || role == 'RW') return Colors.red;
+    if (role == 'Seller') return Colors.green;
+    return Colors.blue;
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: const Color(0xFFF7F9FB),
+        appBar: AppBar(
+          elevation: 0,
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
+          centerTitle: true,
+          title: const Text("Profil Saya"),
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    final userName = userData?['name'] ?? 'User';
+    final userEmail = userData?['email'] ?? '';
+    final userRole = userData?['role'] ?? 'Buyer';
+
     return Scaffold(
       backgroundColor: const Color(0xFFF7F9FB),
       appBar: AppBar(
@@ -54,20 +112,31 @@ class ProfilSayaPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    "Ketua RT 03",
-                    style: TextStyle(
+                  Text(
+                    userName,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    "RT 03 / RW 05",
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
-                      fontSize: 14,
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: _getRoleBadgeColor(),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      _getRoleBadgeText(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ],
@@ -107,7 +176,7 @@ class ProfilSayaPage extends StatelessWidget {
                   _buildInfoRow(
                     Icons.person_outline,
                     "Nama Lengkap",
-                    "Ketua RT 03",
+                    userName,
                     Colors.blue,
                   ),
                   const Divider(height: 24),
@@ -123,8 +192,16 @@ class ProfilSayaPage extends StatelessWidget {
                   _buildInfoRow(
                     Icons.email_outlined,
                     "Email",
-                    "ketuart03@jawara.id",
+                    userEmail,
                     Colors.purple,
+                  ),
+                  const Divider(height: 24),
+
+                  _buildInfoRow(
+                    Icons.badge_outlined,
+                    "Role",
+                    _getRoleBadgeText(),
+                    _getRoleBadgeColor(),
                   ),
                   const Divider(height: 24),
 
@@ -216,6 +293,43 @@ class ProfilSayaPage extends StatelessWidget {
 
             const SizedBox(height: 24),
 
+            // Upgrade to Seller Button (only for Buyer)
+            if (userRole == 'Buyer')
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const UpgradeToSellerPage(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.upgrade, color: Colors.white),
+                  label: const Text(
+                    "Upgrade ke Seller",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 2,
+                  ),
+                ),
+              ),
+
+            const SizedBox(height: 16),
+
             // Edit Profile Button
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -235,10 +349,7 @@ class ProfilSayaPage extends StatelessWidget {
                 ),
                 child: const Text(
                   "Edit Profil",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -251,7 +362,11 @@ class ProfilSayaPage extends StatelessWidget {
   }
 
   static Widget _buildInfoRow(
-      IconData icon, String label, String value, Color color) {
+    IconData icon,
+    String label,
+    String value,
+    Color color,
+  ) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -270,10 +385,7 @@ class ProfilSayaPage extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 12,
-                ),
+                style: TextStyle(color: Colors.grey[600], fontSize: 12),
               ),
               const SizedBox(height: 4),
               Text(

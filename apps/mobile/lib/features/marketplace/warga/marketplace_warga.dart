@@ -8,6 +8,7 @@ import 'my_products_page.dart';
 import 'widget/product_card_warga.dart';
 import 'widget/category_chip.dart';
 import '../../../models/bottom_navbar_warga.dart';
+import '../../../services/auth_service.dart';
 
 class MarketplaceWarga extends StatefulWidget {
   const MarketplaceWarga({super.key});
@@ -20,6 +21,20 @@ class _MarketplaceWargaState extends State<MarketplaceWarga> {
   String selectedCategory = 'Semua';
   String? detectedMotif; // Motif dari hasil camera detection
   final TextEditingController _searchController = TextEditingController();
+  String? userRole;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserRole();
+  }
+
+  Future<void> _loadUserRole() async {
+    final role = await AuthService().getUserRole();
+    setState(() {
+      userRole = role;
+    });
+  }
 
   // Dummy data produk batik
   final List<Map<String, dynamic>> products = [
@@ -149,16 +164,19 @@ class _MarketplaceWargaState extends State<MarketplaceWarga> {
         backgroundColor: Colors.white,
         elevation: 0,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.store_outlined),
-            tooltip: 'Produk Saya',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const MyProductsPage()),
-              );
-            },
-          ),
+          if (userRole == 'Seller') // Only show for Seller
+            IconButton(
+              icon: const Icon(Icons.store_outlined),
+              tooltip: 'Produk Saya',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const MyProductsPage(),
+                  ),
+                );
+              },
+            ),
           IconButton(
             icon: Badge(
               label: const Text('2'),
@@ -621,17 +639,23 @@ class _MarketplaceWargaState extends State<MarketplaceWarga> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const SellProductPage()),
-          );
-        },
-        label: const Text('Jual Batik'),
-        icon: const Icon(Icons.add),
-        backgroundColor: const Color(0xFF00AFC1),
-      ),
+      floatingActionButton:
+          userRole ==
+              'Seller' // Only show for Seller
+          ? FloatingActionButton.extended(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SellProductPage(),
+                  ),
+                );
+              },
+              label: const Text('Jual Batik'),
+              icon: const Icon(Icons.add),
+              backgroundColor: const Color(0xFF00AFC1),
+            )
+          : null,
       bottomNavigationBar: const AppBottomNavBar(currentIndex: 3),
     );
   }

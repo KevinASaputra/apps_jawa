@@ -4,6 +4,8 @@ import '../widgets/lainnya_widgets.dart';
 import '../profil_saya.dart';
 import '../kegiatan_warga.dart';
 import '../notifikasi.dart';
+import '../../../services/auth_service.dart';
+import '../../../routes/app_routes.dart';
 
 class LainnyaPage extends StatelessWidget {
   const LainnyaPage({super.key});
@@ -147,10 +149,7 @@ class LainnyaPage extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     "Versi 1.0.0",
-                    style: TextStyle(
-                      color: Colors.grey[500],
-                      fontSize: 12,
-                    ),
+                    style: TextStyle(color: Colors.grey[500], fontSize: 12),
                   ),
                 ],
               ),
@@ -165,9 +164,7 @@ class LainnyaPage extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
@@ -230,9 +227,17 @@ class LainnyaPage extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
                         Navigator.pop(context);
-                        // Implement logout logic here
+                        // Logout logic
+                        await AuthService().clearAuth();
+                        if (context.mounted) {
+                          Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            AppRoutes.login,
+                            (route) => false,
+                          );
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,

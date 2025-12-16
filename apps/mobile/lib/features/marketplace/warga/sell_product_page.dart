@@ -31,7 +31,7 @@ class _SellProductPageState extends State<SellProductPage> {
   final ImagePicker _picker = ImagePicker();
 
   static const String _openRouterApiKey =
-      'YOUR_OPENROUTER_API_KEY_HERE';
+      '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';
   static const String _openRouterModel =
       'meta-llama/llama-3.2-3b-instruct:free';
 
