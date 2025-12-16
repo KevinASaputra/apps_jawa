@@ -1,8 +1,9 @@
 import { writeFileSync, mkdirSync, existsSync } from "fs";
-import { swaggerSpec } from "../src/docs/swagger.js";
 import { join } from "path";
+import { swaggerSpec } from "../src/docs/swagger.js";
 
 const EXPORT_DIR = join(process.cwd(), "/exports");
+
 if (!existsSync(EXPORT_DIR)) {
   mkdirSync(EXPORT_DIR, { recursive: true });
   console.log("📁 Folder 'exports' created.");
@@ -24,7 +25,7 @@ interface PostmanRequestItem {
 interface InsomniaResource {
   _id: string;
   parentId?: string;
-  _type: string;
+  _type: "workspace" | "request" | "environment";
   name: string;
   method?: string;
   url?: string;
@@ -32,24 +33,25 @@ interface InsomniaResource {
   body?: any;
 }
 
-const postman: {
-  info: any;
-  item: PostmanRequestItem[];
-} = {
+const postman = {
   info: {
     _postman_id: "jawara-api",
     name: "Jawara API Collection",
     schema:
       "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
   },
-  item: [],
+  variable: [
+    { key: "base_url", value: "http://localhost:3000" },
+    { key: "token", value: "" },
+  ],
+  item: [] as PostmanRequestItem[],
 };
 
 for (const path in swaggerSpec.paths) {
   const methods = swaggerSpec.paths[path];
 
   for (const method in methods) {
-    const endpoint = methods[method];
+    const endpoint: any = methods[method];
 
     postman.item.push({
       name: endpoint.summary || `${method.toUpperCase()} ${path}`,
@@ -74,40 +76,48 @@ writeFileSync(
   "utf8"
 );
 
-const insomnia: {
-  _type: string;
-  __export_format: number;
-  resources: InsomniaResource[];
-} = {
+const insomnia = {
   _type: "export",
   __export_format: 4,
-  resources: [],
+  __export_date: new Date().toISOString(),
+  resources: [] as InsomniaResource[],
 };
 
 let counter = 1;
-const newId = () => `id_${counter++}`;
+const newId = () => `req_${counter++}`;
 
 insomnia.resources.push({
-  _id: "wrk_1",
+  _id: "wrk_jawara",
   _type: "workspace",
   name: "Jawara API Workspace",
+});
+
+insomnia.resources.push({
+  _id: "env_jawara",
+  parentId: "wrk_jawara",
+  _type: "environment",
+  name: "Base Environment",
+  body: {
+    base_url: "http://localhost:3000",
+    token: "",
+  },
 });
 
 for (const path in swaggerSpec.paths) {
   const methods = swaggerSpec.paths[path];
 
   for (const method in methods) {
-    const endpoint = methods[method];
+    const endpoint: any = methods[method];
 
     insomnia.resources.push({
       _id: newId(),
-      parentId: "wrk_1",
+      parentId: "wrk_jawara",
       _type: "request",
       name: endpoint.summary || `${method.toUpperCase()} ${path}`,
       method: method.toUpperCase(),
-      url: `{{base_url}}${path}`,
+      url: `{{ base_url }}${path}`,
       headers: endpoint.security
-        ? [{ name: "Authorization", value: "Bearer {{token}}" }]
+        ? [{ name: "Authorization", value: "Bearer {{ token }}" }]
         : [],
       body: {},
     });
@@ -120,4 +130,6 @@ writeFileSync(
   "utf8"
 );
 
-console.log("✨ Successfully generated Postman & Insomnia collections in /apps/backend/exports/");
+console.log(
+  "✨ Successfully generated Postman & Insomnia collections in /apps/backend/exports/"
+);
