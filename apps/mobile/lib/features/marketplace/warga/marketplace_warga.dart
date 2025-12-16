@@ -4,6 +4,7 @@ import 'batik_camera_page.dart';
 import 'detail_produk_batik.dart';
 import 'cart_page.dart';
 import 'sell_product_page.dart';
+import 'my_products_page.dart';
 import 'widget/product_card_warga.dart';
 import 'widget/category_chip.dart';
 import '../../../models/bottom_navbar_warga.dart';
@@ -74,11 +75,11 @@ class _MarketplaceWargaState extends State<MarketplaceWarga> {
 
   List<String> categories = [
     'Semua',
-    'Parang',
-    'Kawung',
-    'Mega Mendung',
-    'Truntum',
-    'Sido Mukti',
+    'Termurah',
+    'Termahal',
+    'Rating Tertinggi',
+    'Terlaris',
+    'Stok Terbanyak',
   ];
 
   @override
@@ -99,9 +100,25 @@ class _MarketplaceWargaState extends State<MarketplaceWarga> {
       }).toList();
     }
 
-    // Filter by selected category
+    // Sort/Filter by selected category
     if (selectedCategory != 'Semua') {
-      result = result.where((p) => p['motif'] == selectedCategory).toList();
+      switch (selectedCategory) {
+        case 'Termurah':
+          result.sort((a, b) => a['price'].compareTo(b['price']));
+          break;
+        case 'Termahal':
+          result.sort((a, b) => b['price'].compareTo(a['price']));
+          break;
+        case 'Rating Tertinggi':
+          result.sort((a, b) => b['rating'].compareTo(a['rating']));
+          break;
+        case 'Terlaris':
+          result.sort((a, b) => b['sold'].compareTo(a['sold']));
+          break;
+        case 'Stok Terbanyak':
+          result.sort((a, b) => b['stock'].compareTo(a['stock']));
+          break;
+      }
     }
 
     // Filter by search text
@@ -132,6 +149,16 @@ class _MarketplaceWargaState extends State<MarketplaceWarga> {
         backgroundColor: Colors.white,
         elevation: 0,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.store_outlined),
+            tooltip: 'Produk Saya',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const MyProductsPage()),
+              );
+            },
+          ),
           IconButton(
             icon: Badge(
               label: const Text('2'),
