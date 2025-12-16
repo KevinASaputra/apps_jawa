@@ -7,15 +7,270 @@ export const swaggerSpec: OpenAPIObject = {
     title: "Jawara API Documentation",
     version: "1.0.0",
     description:
-      "Dokumentasi resmi API Jawara untuk Autentikasi, Role, Produk, Cart, Checkout, dan Profil.",
+      "Dokumentasi resmi API Jawara – Auth, Profile, Family, Buyer, Seller, Cart, Checkout, Admin, Finance, Activity & Dashboard.",
   },
 
   servers: [
     {
+      url: "https://apps-jawa-backend.vercel.app",
+      description: "Production Server",
+    },
+    {
+      url: "https://jawara-dev.vercel.app",
+      description: "Staging / Dev Server",
+    },
+    {
       url: "http://localhost:3000",
-      description: "Local Development Server",
+      description: "Local Development",
     },
   ],
+
+  tags: [
+    { name: "Auth", description: "Authentication (public)" },
+    { name: "Profile", description: "User profile & family" },
+    { name: "Products", description: "Public product listing" },
+    { name: "Buyer", description: "🔒 Buyer only APIs" },
+    { name: "Seller", description: "🔒 Seller only APIs" },
+    { name: "Admin", description: "🔒 Admin only APIs" },
+    { name: "Finance", description: "🔒 Admin finance management" },
+    { name: "Activities", description: "🔒 Admin activities management" },
+    { name: "Dashboard", description: "🔒 Admin dashboard" },
+  ],
+
+  paths: {
+    "/auth/register": {
+      post: {
+        summary: "Register user",
+        tags: ["Auth"],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/RegisterRequest" },
+            },
+          },
+        },
+        responses: { 200: { description: "Register berhasil" } },
+      },
+    },
+
+    "/auth/login": {
+      post: {
+        summary: "Login",
+        tags: ["Auth"],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/LoginRequest" },
+            },
+          },
+        },
+        responses: { 200: { description: "Login berhasil" } },
+      },
+    },
+
+    "/profile": {
+      get: {
+        summary: "Get profile",
+        tags: ["Profile"],
+        security: [{ bearerAuth: [] }],
+        responses: { 200: { description: "Profile loaded" } },
+      },
+      put: {
+        summary: "Update profile",
+        tags: ["Profile"],
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/ProfileUpdate" },
+            },
+          },
+        },
+        responses: { 200: { description: "Profile updated" } },
+      },
+    },
+
+    "/profile/family": {
+      get: {
+        summary: "Get family members",
+        tags: ["Profile"],
+        security: [{ bearerAuth: [] }],
+        responses: { 200: { description: "Family list" } },
+      },
+      post: {
+        summary: "Add family member",
+        tags: ["Profile"],
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/FamilyMemberCreate" },
+            },
+          },
+        },
+        responses: { 200: { description: "Family member added" } },
+      },
+    },
+
+    "/role": {
+      put: {
+        summary: "Upgrade role (Buyer → Seller)",
+        tags: ["Profile"],
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/RoleUpdate" },
+            },
+          },
+        },
+        responses: { 200: { description: "Role updated" } },
+      },
+    },
+
+    "/products": {
+      get: {
+        summary: "List all products",
+        tags: ["Products"],
+        responses: { 200: { description: "Success" } },
+      },
+    },
+
+    "/seller/products": {
+      get: {
+        summary: "Seller – list own products",
+        tags: ["Seller"],
+        security: [{ bearerAuth: [] }],
+        responses: { 200: { description: "Success" } },
+      },
+      post: {
+        summary: "Seller – create product",
+        tags: ["Seller"],
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/ProductCreate" },
+            },
+          },
+        },
+        responses: { 200: { description: "Product created" } },
+      },
+    },
+
+    "/cart": {
+      get: {
+        summary: "View cart",
+        tags: ["Buyer"],
+        security: [{ bearerAuth: [] }],
+        responses: { 200: { description: "Success" } },
+      },
+    },
+
+    "/cart/add": {
+      post: {
+        summary: "Add item to cart",
+        tags: ["Buyer"],
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/CartAdd" },
+            },
+          },
+        },
+        responses: { 200: { description: "Item added" } },
+      },
+    },
+
+    "/checkout": {
+      post: {
+        summary: "Checkout cart",
+        tags: ["Buyer"],
+        security: [{ bearerAuth: [] }],
+        responses: { 200: { description: "Checkout success" } },
+      },
+    },
+
+    "/admin/verify/{citizenId}": {
+      post: {
+        summary: "Verify citizen (Head of family)",
+        tags: ["Admin"],
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: "citizenId",
+            in: "path",
+            required: true,
+            schema: { type: "integer" },
+          },
+        ],
+        responses: { 200: { description: "Citizen verified" } },
+      },
+    },
+
+    "/admin/finance": {
+      get: {
+        summary: "List finance records",
+        tags: ["Finance"],
+        security: [{ bearerAuth: [] }],
+        responses: { 200: { description: "Success" } },
+      },
+      post: {
+        summary: "Create finance record",
+        tags: ["Finance"],
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/FinanceCreate" },
+            },
+          },
+        },
+        responses: { 200: { description: "Finance created" } },
+      },
+    },
+
+    "/admin/activities": {
+      get: {
+        summary: "List activities",
+        tags: ["Activities"],
+        security: [{ bearerAuth: [] }],
+        responses: { 200: { description: "Success" } },
+      },
+      post: {
+        summary: "Create activity",
+        tags: ["Activities"],
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/ActivityCreate" },
+            },
+          },
+        },
+        responses: { 200: { description: "Activity created" } },
+      },
+    },
+
+    "/admin/dashboard": {
+      get: {
+        summary: "Admin dashboard summary",
+        tags: ["Dashboard"],
+        security: [{ bearerAuth: [] }],
+        responses: { 200: { description: "Dashboard data" } },
+      },
+    },
+  },
 
   components: {
     securitySchemes: {
@@ -27,225 +282,91 @@ export const swaggerSpec: OpenAPIObject = {
     },
 
     schemas: {
-      User: {
+      RegisterRequest: {
         type: "object",
+        required: ["name", "email", "password"],
         properties: {
-          id: { type: "number" },
-          nik: { type: "string" },
           name: { type: "string" },
           email: { type: "string" },
+          password: { type: "string" },
+        },
+      },
+
+      LoginRequest: {
+        type: "object",
+        required: ["email", "password"],
+        properties: {
+          email: { type: "string" },
+          password: { type: "string" },
+        },
+      },
+
+      ProfileUpdate: {
+        type: "object",
+        properties: {
+          address: { type: "string" },
+          phone: { type: "string" },
+          birth_date: { type: "string", format: "date" },
+        },
+      },
+
+      FamilyMemberCreate: {
+        type: "object",
+        required: ["name", "relation"],
+        properties: {
+          name: { type: "string" },
+          relation: { type: "string" },
+          birth_date: { type: "string", format: "date" },
+        },
+      },
+
+      RoleUpdate: {
+        type: "object",
+        required: ["role"],
+        properties: {
           role: { type: "string", enum: ["Buyer", "Seller"] },
         },
       },
 
-      Product: {
+      ProductCreate: {
         type: "object",
+        required: ["name", "price"],
         properties: {
-          id: { type: "number" },
-          sellerId: { type: "number" },
           name: { type: "string" },
           description: { type: "string" },
           price: { type: "number" },
           stock: { type: "number" },
-          imageUrl: { type: "string" },
         },
       },
 
-      CartItem: {
+      CartAdd: {
         type: "object",
+        required: ["productId", "quantity"],
         properties: {
-          id: { type: "number" },
           productId: { type: "number" },
           quantity: { type: "number" },
         },
       },
 
-      CheckoutResult: {
+      FinanceCreate: {
         type: "object",
+        required: ["type", "amount", "date"],
         properties: {
-          orderId: { type: "number" },
-          message: { type: "string" },
+          type: { type: "string", enum: ["income", "expense"] },
+          amount: { type: "number" },
+          description: { type: "string" },
+          date: { type: "string", format: "date" },
         },
       },
-    },
-  },
 
-  paths: {
-    "/auth/register": {
-      post: {
-        summary: "Register user baru",
-        tags: ["Auth"],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              example: {
-                nik: "3517xxxxxxx",
-                name: "Peri Cantik",
-                email: "peri@example.com",
-                password: "password123",
-              },
-            },
-          },
-        },
-        responses: { 200: { description: "Register berhasil" } },
-      },
-    },
-
-    "/auth/login": {
-      post: {
-        summary: "Login mendapatkan JWT",
-        tags: ["Auth"],
-        requestBody: {
-          required: true,
-          content: {
-            "application/json": {
-              example: {
-                email: "peri@example.com",
-                password: "password123",
-              },
-            },
-          },
-        },
-        responses: {
-          200: {
-            description: "Login sukses",
-            content: {
-              "application/json": {
-                example: {
-                  token: "jwt-token-here",
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-
-    "/profile": {
-      get: {
-        summary: "Ambil profil user",
-        tags: ["Profile"],
-        security: [{ bearerAuth: [] }],
-        responses: { 200: { description: "OK" } },
-      },
-      put: {
-        summary: "Update profil user",
-        tags: ["Profile"],
-        security: [{ bearerAuth: [] }],
-        requestBody: {
-          content: {
-            "application/json": {
-              example: {
-                name: "Peri Baru",
-                address: "Jl Baru No. 1",
-              },
-            },
-          },
-        },
-        responses: { 200: { description: "Update berhasil" } },
-      },
-    },
-
-    "/role": {
-      put: {
-        summary: "Rubah role menjadi Buyer / Seller",
-        tags: ["Role"],
-        security: [{ bearerAuth: [] }],
-        requestBody: {
-          content: {
-            "application/json": {
-              example: {
-                role: "Seller",
-              },
-            },
-          },
-        },
-        responses: { 200: { description: "Role updated" } },
-      },
-    },
-
-    "/products": {
-      get: {
-        summary: "List semua produk publik",
-        tags: ["Products"],
-        responses: { 200: { description: "List of products" } },
-      },
-    },
-
-    "/seller/products": {
-      post: {
-        summary: "Tambah produk baru (Seller only)",
-        tags: ["Seller Products"],
-        security: [{ bearerAuth: [] }],
-        requestBody: {
-          content: {
-            "application/json": {
-              example: {
-                name: "Nasi Goreng",
-                description: "Enak banget",
-                price: 20000,
-                stock: 10,
-              },
-            },
-          },
-        },
-        responses: { 200: { description: "Produk dibuat" } },
-      },
-
-      get: {
-        summary: "List produk milik seller",
-        tags: ["Seller Products"],
-        security: [{ bearerAuth: [] }],
-        responses: { 200: { description: "OK" } },
-      },
-    },
-
-    "/cart": {
-      get: {
-        summary: "Lihat semua cart",
-        tags: ["Cart"],
-        security: [{ bearerAuth: [] }],
-        responses: { 200: { description: "OK" } },
-      },
-    },
-
-    "/cart/add": {
-      post: {
-        summary: "Tambah item ke cart",
-        tags: ["Cart"],
-        security: [{ bearerAuth: [] }],
-        requestBody: {
-          content: {
-            "application/json": {
-              example: {
-                productId: 1,
-                quantity: 2,
-              },
-            },
-          },
-        },
-        responses: { 200: { description: "Added" } },
-      },
-    },
-
-    "/checkout": {
-      post: {
-        summary: "Checkout cart user",
-        tags: ["Checkout"],
-        security: [{ bearerAuth: [] }],
-        responses: {
-          200: {
-            description: "Checkout done",
-            content: {
-              "application/json": {
-                example: {
-                  orderId: 123,
-                  message: "Checkout berhasil",
-                },
-              },
-            },
-          },
+      ActivityCreate: {
+        type: "object",
+        required: ["title", "date"],
+        properties: {
+          title: { type: "string" },
+          description: { type: "string" },
+          date: { type: "string", format: "date" },
+          location: { type: "string" },
         },
       },
     },

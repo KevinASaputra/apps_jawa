@@ -12,6 +12,12 @@ import { cartRoute } from "./routes/cart.js";
 import { checkoutRoute } from "./routes/checkout.js";
 import { profileRoute } from "./routes/profile.js";
 import { docsRoute } from "./routes/docs.js";
+import { familyRoute } from "./routes/family.js";
+import { adminFinanceRoute } from "./routes/adminFinance.js";
+import { adminRoute } from "./routes/admin.js";
+import { activitiesRoute } from "./routes/activities.js";
+import { adminActivitiesRoute } from "./routes/adminActiviies.js";
+import { reviewRoute } from "./routes/review.js";
 
 const app = new Hono();
 
@@ -26,6 +32,11 @@ app.route("/auth", authRoute);
 app.route("/logout", logoutRoute);
 app.route("/forgot-password", forgotPasswordRoute);
 
+app.route("/profile/family", familyRoute);
+app.route("/admin/finances", adminFinanceRoute);
+app.route("/admin", adminRoute)
+app.route("/admin/activities", adminActivitiesRoute);
+app.route("/activities", activitiesRoute);
 app.route("/role", roleRoute);
 
 app.route("/cart", cartRoute);
@@ -35,6 +46,7 @@ app.route("/profile", profileRoute);
 app.route("/seller/products", sellerProductsRoute);
 
 app.route("/products", productsRoute);
+app.route("/reviews", reviewRoute);
 
 const port = Number(process.env.PORT) || 3000;
 

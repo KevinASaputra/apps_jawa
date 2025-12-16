@@ -8,44 +8,35 @@ import jwt from "jsonwebtoken";
 export const authRoute = new Hono();
 
 authRoute.post("/register", async (c) => {
-  const body = await c.req.json();
+  const { name, email, password } = await c.req.json();
 
-  const {
-    nik,
-    name,
-    gender,
-    birthPlace,
-    birthDate,
-    address,
-    email,
-    password,
-    role = "Buyer"
-  } = body;
-
-  if (!nik || !name || !email || !password) {
-    return c.json({ message: "Bad Request: Missing required fields" }, 400);
+  if (!name || !email || !password) {
+    return c.json({ error: "Name, email, password required" }, 400);
   }
 
-  const passwordHash = await bcrypt.hash(password, 10);
+  const hash = await bcrypt.hash(password, 10);
 
-  const inserted = await db
+  const user = await db
     .insert(citizens)
     .values({
-      nik,
       name,
-      gender,
-      birth_place: birthPlace,
-      birth_date: birthDate,
-      address,
       email,
-      password_hash: passwordHash,
-      role
+      password_hash: hash,
     })
     .returning();
 
-
-  return c.json({ message: "Register berhasil", user: inserted[0] });
+  return c.json({
+    message: "Register berhasil, silakan lengkapi profil & data keluarga",
+    user: {
+      id: user[0].id,
+      name: user[0].name,
+      email: user[0].email,
+      account_status: user[0].account_status,
+    },
+  });
 });
+
+
 
 authRoute.post("/login", async (c) => {
   const { email, password } = await c.req.json();
@@ -73,24 +64,23 @@ authRoute.post("/login", async (c) => {
   const token = jwt.sign(
     {
       id: user.id,
-      nik: user.nik,
-      name: user.name,
       email: user.email,
-      role: user.role
+      role: user.role,
+      account_status: user.account_status,
     },
     process.env.JWT_SECRET!,
-    { expiresIn: 60 * 60 * 24 }
+    { expiresIn: "1d" }
   );
+
 
   return c.json({
     message: "Login berhasil",
     token,
-    data: {
+    user: {
       id: user.id,
-      nik: user.nik,
       name: user.name,
       email: user.email,
-      role: user.role
-    }
+      role: user.role,
+    },
   });
-});
+})
