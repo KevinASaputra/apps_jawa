@@ -4,6 +4,7 @@ import '../widgets/lainnya_widgets.dart';
 import '../profil_saya.dart';
 import '../kegiatan_warga.dart';
 import '../notifikasi.dart';
+import '../../../routes/app_routes.dart';
 
 class LainnyaPage extends StatelessWidget {
   const LainnyaPage({super.key});
@@ -232,7 +233,7 @@ class LainnyaPage extends StatelessWidget {
                     child: ElevatedButton(
                       onPressed: () {
                         Navigator.pop(context);
-                        // Implement logout logic here
+                        Navigator.pushReplacementNamed(context, AppRoutes.login);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
