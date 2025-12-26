@@ -1,6 +1,22 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import '../routes/app_routes.dart';
+
+// ==========================
+// SSL Override untuk testing
+// ==========================
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+  }
+}
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -11,7 +27,100 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool _obscurePassword = true;
+  bool _isLoading = false;
 
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Override SSL (hanya testing)
+    HttpOverrides.global = MyHttpOverrides();
+  }
+
+  // =========================
+  // LOGIN FUNCTION
+  // =========================
+  Future<void> login() async {
+  if (emailController.text.isEmpty || passwordController.text.isEmpty) {
+    _showError("Email dan password wajib diisi");
+    return;
+  }
+
+  setState(() => _isLoading = true);
+
+  try {
+    final response = await http
+        .post(
+          Uri.parse('https://apps-jawa-backend.vercel.app/auth/login'),
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: jsonEncode({
+            "email": emailController.text.trim(),
+            "password": passwordController.text,
+          }),
+        )
+        .timeout(const Duration(seconds: 40));
+
+    debugPrint("STATUS: ${response.statusCode}");
+    debugPrint("RAW BODY: ${response.body}");
+
+    Map<String, dynamic> data;
+    try {
+      data = jsonDecode(response.body);
+    } catch (e) {
+      _showError("Response bukan JSON valid");
+      debugPrint("JSON DECODE ERROR: $e");
+      return;
+    }
+
+    if (response.statusCode == 200) {
+      // Login berhasil → ambil token & user
+      final token = data['token'] ?? '';
+      final user = data['user'] ?? {};
+      final role = user['role'] ?? '';
+
+      debugPrint("TOKEN: $token");
+      debugPrint("ROLE: $role");
+
+      // Navigasi sesuai role
+      if (role == 'Admin') {
+        Navigator.pushReplacementNamed(context, AppRoutes.dashboardAdmin);
+      } else if (role == 'Seller' || role == 'Buyer') {
+        Navigator.pushReplacementNamed(context, AppRoutes.dashboardWarga);
+      } else {
+        _showError("Role tidak dikenali");
+      }
+    } else {
+      // Login gagal → tampilkan message API
+      final message = data['message'];
+      _showError(message);
+    }
+  } on TimeoutException {
+    _showError("Server tidak merespons");
+  } on SocketException {
+    _showError("Tidak ada koneksi internet");
+  } catch (e, stacktrace) {
+    debugPrint("ERROR TYPE: ${e.runtimeType}");
+    debugPrint("ERROR: $e");
+    debugPrint("STACKTRACE: $stacktrace");
+    _showError("Terjadi kesalahan saat login");
+  } finally {
+    setState(() => _isLoading = false);
+  }
+}
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  // =========================
+  // UI
+  // =========================
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,15 +147,12 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
           ),
-
-          // footer - copyright
           Positioned(bottom: 20, left: 0, right: 0, child: _buildFooter()),
         ],
       ),
     );
   }
 
-  // komponen UI
   Widget _buildBackground() {
     return Container(
       decoration: const BoxDecoration(
@@ -75,7 +181,7 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ],
       ),
-      child: Image.asset('assets/icon/app.png', fit: BoxFit.contain),
+      child: Image.asset('assets/icon/app.png'),
     );
   }
 
@@ -104,51 +210,45 @@ class _LoginPageState extends State<LoginPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("Username"),
+        const Text("Email"),
         const SizedBox(height: 6),
-        _buildTextField(hint: "Masukkan username", icon: Icons.person_outline),
+        TextField(
+          controller: emailController,
+          keyboardType: TextInputType.emailAddress,
+          decoration: InputDecoration(
+            prefixIcon: const Icon(Icons.email_outlined),
+            hintText: "Masukkan email",
+            border:
+                OutlineInputBorder(borderRadius: BorderRadius.circular(28)),
+          ),
+        ),
         const SizedBox(height: 20),
-
         const Text("Password"),
         const SizedBox(height: 6),
-        _buildPasswordField(),
-
-        const SizedBox(height: 20),
+        TextField(
+          controller: passwordController,
+          obscureText: _obscurePassword,
+          decoration: InputDecoration(
+            prefixIcon: const Icon(Icons.lock_outline),
+            suffixIcon: GestureDetector(
+              onTap: () {
+                setState(() => _obscurePassword = !_obscurePassword);
+              },
+              child: Icon(
+                _obscurePassword ? Icons.visibility_off : Icons.visibility,
+              ),
+            ),
+            hintText: "Masukkan password",
+            border:
+                OutlineInputBorder(borderRadius: BorderRadius.circular(28)),
+          ),
+        ),
+        const SizedBox(height: 24),
         _buildLoginButton(),
       ],
     );
   }
 
-  Widget _buildTextField({required String hint, required IconData icon}) {
-    return TextField(
-      decoration: InputDecoration(
-        prefixIcon: Icon(icon),
-        hintText: hint,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(28)),
-      ),
-    );
-  }
-
-  Widget _buildPasswordField() {
-    return TextField(
-      obscureText: _obscurePassword,
-      decoration: InputDecoration(
-        prefixIcon: const Icon(Icons.lock_outline),
-        suffixIcon: GestureDetector(
-          onTap: () {
-            setState(() => _obscurePassword = !_obscurePassword);
-          },
-          child: Icon(
-            _obscurePassword ? Icons.visibility_off : Icons.visibility,
-          ),
-        ),
-        hintText: "Masukkan password",
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(28)),
-      ),
-    );
-  }
-
-  /// LOGIN BUTTON
   Widget _buildLoginButton() {
     return SizedBox(
       width: double.infinity,
@@ -160,17 +260,17 @@ class _LoginPageState extends State<LoginPage> {
             borderRadius: BorderRadius.circular(28),
           ),
         ),
-        onPressed: () {
-          Navigator.pushNamed(context, AppRoutes.dashboardWarga);
-        },
-        child: const Text(
-          "Masuk",
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
-          ),
-        ),
+        onPressed: _isLoading ? null : login,
+        child: _isLoading
+            ? const CircularProgressIndicator(color: Colors.white)
+            : const Text(
+                "Masuk",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
       ),
     );
   }
@@ -179,10 +279,7 @@ class _LoginPageState extends State<LoginPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        // lupa password
         TextButton(onPressed: () {}, child: const Text("Lupa password?")),
-
-        // buat akun (masih 1 line tapi kanan)
         RichText(
           text: TextSpan(
             text: "Belum punya akun? ",
@@ -206,7 +303,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  // footer - copyright
   Widget _buildFooter() {
     return const Text(
       "© 2025 Jawara Pintar. All rights reserved.",
