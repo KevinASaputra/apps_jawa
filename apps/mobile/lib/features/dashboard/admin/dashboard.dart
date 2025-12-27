@@ -56,6 +56,7 @@ class AdminDashboard extends StatelessWidget {
 
                     const Text(
                       "Selamat Datang",
+                      key: Key('admin_welcome_text'),
                       style: TextStyle(color: Colors.white, fontSize: 14),
                     ),
 
@@ -76,8 +77,7 @@ class AdminDashboard extends StatelessWidget {
                     CustomSearchBar(
                       hintText: "Cari data warga...",
                       onChanged: (value) {
-                        // lakukan filter data di sini
-                        print("Search input: $value");
+                        debugPrint("Search input: $value");
                       },
                     ),
 
@@ -106,64 +106,35 @@ class AdminDashboard extends StatelessWidget {
               // ====================================================
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Text(
-                  "Aksi Cepat",
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 17,
-                    color: Colors.grey[800],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 10),
-
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   children: [
-                    QuickActionButton(
-                      icon: CupertinoIcons.person_badge_plus,
-                      label: "Tambah Warga",
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const KependudukanPage(),
-                          ),
-                        );
-                      },
+                    Flexible(
+                      child: QuickActionButton(
+                        icon: CupertinoIcons.person_badge_plus,
+                        label: "Tambah Warga",
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const KependudukanPage())),
+                      ),
                     ),
                     const SizedBox(width: 12),
-                    QuickActionButton(
-                      icon: CupertinoIcons.calendar_badge_plus,
-                      label: "Tambah Kegiatan",
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const KegiatanWargaPage(),
-                          ),
-                        );
-                      },
+                    Flexible(
+                      child: QuickActionButton(
+                        icon: CupertinoIcons.calendar_badge_plus,
+                        label: "Tambah Kegiatan",
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const KegiatanWargaPage())),
+                      ),
                     ),
                     const SizedBox(width: 12),
-                    QuickActionButton(
-                      icon: CupertinoIcons.doc_plaintext,
-                      label: "Laporan",
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const KeuanganPage(),
-                          ),
-                        );
-                      },
+                    Flexible(
+                      child: QuickActionButton(
+                        icon: CupertinoIcons.doc_plaintext,
+                        label: "Laporan",
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const KeuanganPage())),
+                      ),
                     ),
                   ],
                 ),
-              ),
 
+              ),
               const SizedBox(height: 30),
 
               // ====================================================
@@ -195,8 +166,6 @@ class AdminDashboard extends StatelessWidget {
 
               const SizedBox(height: 30),
 
-              const SizedBox(height: 30),
-
               // ====================================================
               //                     KEGIATAN
               // ====================================================
@@ -214,7 +183,10 @@ class AdminDashboard extends StatelessWidget {
 
               const SizedBox(height: 10),
 
-              const KegiatanTerdekat(),
+              const SizedBox(
+                height: 140, // sesuaikan dengan kebutuhan
+                child: KegiatanTerdekat(),
+              ),
 
               const SizedBox(height: 30),
             ],
@@ -224,4 +196,3 @@ class AdminDashboard extends StatelessWidget {
     );
   }
 }
-
