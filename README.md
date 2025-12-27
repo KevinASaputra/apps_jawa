@@ -11,6 +11,10 @@ This project is a marketplace application for buying and selling batik products.
 - Cart and checkout functionality
 - Admin management for seller requests
 
+
+## FIXING
+https://drive.google.com/file/d/1MVgT1N7zjGbX6cvW0l86DTK7ZXC6VYz1/view?usp=drive_link
+
 ## Team Members
 | Name                          | ID         | Contributions         |
 |-------------------------------|------------|-----------------------|
