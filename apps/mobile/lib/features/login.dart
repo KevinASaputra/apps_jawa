@@ -213,19 +213,21 @@ class _LoginPageState extends State<LoginPage> {
         const Text("Email"),
         const SizedBox(height: 6),
         TextField(
+          key: const Key('emailField'),
           controller: emailController,
           keyboardType: TextInputType.emailAddress,
           decoration: InputDecoration(
             prefixIcon: const Icon(Icons.email_outlined),
             hintText: "Masukkan email",
-            border:
-                OutlineInputBorder(borderRadius: BorderRadius.circular(28)),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(28)),
           ),
         ),
+
         const SizedBox(height: 20),
         const Text("Password"),
         const SizedBox(height: 6),
         TextField(
+          key: const Key('passwordField'),
           controller: passwordController,
           obscureText: _obscurePassword,
           decoration: InputDecoration(
@@ -261,6 +263,7 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
         onPressed: _isLoading ? null : login,
+        key: const Key('loginButton'),
         child: _isLoading
             ? const CircularProgressIndicator(color: Colors.white)
             : const Text(
