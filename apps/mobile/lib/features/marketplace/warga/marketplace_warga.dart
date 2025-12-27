@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'batik_detection_page.dart';
 import 'batik_camera_page.dart';
@@ -23,10 +24,15 @@ class _MarketplaceWargaState extends State<MarketplaceWarga> {
   final TextEditingController _searchController = TextEditingController();
   String? userRole;
 
+  // Stream controller for products
+  final StreamController<List<Map<String, dynamic>>> _productStreamController =
+      StreamController();
+
   @override
   void initState() {
     super.initState();
     _loadUserRole();
+    _startProductStream();
   }
 
   Future<void> _loadUserRole() async {
@@ -34,6 +40,13 @@ class _MarketplaceWargaState extends State<MarketplaceWarga> {
     setState(() {
       userRole = role;
     });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _productStreamController.close(); // Close the stream controller
+    super.dispose();
   }
 
   // Dummy data produk batik
@@ -97,10 +110,34 @@ class _MarketplaceWargaState extends State<MarketplaceWarga> {
     'Stok Terbanyak',
   ];
 
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
+  // Function to simulate product stream
+  void _startProductStream() {
+    List<Map<String, dynamic>> allProducts = List.from(
+      products,
+    ); // Clone the initial products
+
+    // Simulate adding more products over time
+    Timer.periodic(const Duration(seconds: 2), (timer) {
+      if (allProducts.length >= 100) {
+        timer.cancel(); // Stop adding products after reaching 100
+      } else {
+        allProducts.add({
+          'id': allProducts.length + 1,
+          'name': 'Batik ${allProducts.length + 1}',
+          'motif': 'Motif ${allProducts.length + 1}',
+          'price': 200000 + (allProducts.length * 1000),
+          'seller': 'Seller ${allProducts.length + 1}',
+          'image': 'https://via.placeholder.com/150',
+          'rating': 4.0 + (allProducts.length % 5) * 0.1,
+          'sold': allProducts.length * 10,
+          'stock': 50 - (allProducts.length % 10),
+          'description': 'Deskripsi produk batik ${allProducts.length + 1}',
+        });
+        _productStreamController.add(
+          List.from(allProducts),
+        ); // Add updated list to the stream
+      }
+    });
   }
 
   List<Map<String, dynamic>> get filteredProducts {
@@ -582,60 +619,52 @@ class _MarketplaceWargaState extends State<MarketplaceWarga> {
               ),
             ),
 
-          // Product Grid
+          // Product StreamBuilder
           Expanded(
-            child: filteredProducts.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.inventory_2_outlined,
-                          size: 80,
-                          color: Colors.grey[400],
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          detectedMotif != null
-                              ? 'Tidak ada produk dengan motif "$detectedMotif"'
-                              : _searchController.text.isNotEmpty
-                              ? 'Tidak ada hasil untuk "${_searchController.text}"'
-                              : 'Tidak ada produk',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                : GridView.builder(
-                    padding: const EdgeInsets.all(16),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          childAspectRatio: 0.7,
-                          crossAxisSpacing: 12,
-                          mainAxisSpacing: 12,
-                        ),
-                    itemCount: filteredProducts.length,
-                    itemBuilder: (context, index) {
-                      final product = filteredProducts[index];
-                      return ProductCardWarga(
-                        product: product,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  DetailProdukBatik(product: product),
-                            ),
-                          );
-                        },
-                      );
-                    },
+            child: StreamBuilder<List<Map<String, dynamic>>>(
+              stream: _productStreamController.stream,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                }
+
+                if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Center(child: Text('Tidak ada produk'));
+                }
+
+                final products = snapshot.data!;
+
+                return GridView.builder(
+                  padding: const EdgeInsets.all(16),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.7,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
                   ),
+                  itemCount: products.length,
+                  itemBuilder: (context, index) {
+                    final product = products[index];
+                    return ProductCardWarga(
+                      product: product,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                DetailProdukBatik(product: product),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+            ),
           ),
         ],
       ),
